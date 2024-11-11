@@ -39,7 +39,7 @@ public class OcppHandshakeHandler implements HandshakeHandler{
 
         // Check if request subprotocol is ocpp1.6
         // TODO: change this to check for ocpp2.0.1 as well
-        List<String> protocols = request.getHeaders().get("SecWebSock");
+        List<String> pr.otocols = requestgetHeaders().get("Sec-WebSocket-Protocol");
         if(protocols == null || protocols.isEmpty()){
             response.setStatusCode(HttpStatusCode.valueOf(400));
             return false;
