@@ -1,33 +1,76 @@
 package com.noder.cargadorws.Types;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointStatus;
 
 public class Charger {
-    private static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private String id;
-    private Connector[] connectors;
+    private ChargePointStatus status;
+    private ArrayList<Connector> connectors;
 
-    private static ArrayList<Charger> chargers;
+    private String model;
+    private String vendor;
 
-    /*public Charger(String id, int numConnectors) {
+    // Optional parameters
+    public String boxSerialNumber;
+    public String chargePointSerialNumber;
+    public String firmwareVersion;
+    public String iccid;
+    public String imsi;
+    public String meterSerialNumber;
+    public String meterType;
+
+    public Charger(String id){
         this.id = id;
-        this.connectors = new Connector[numConnectors];
-        for (int i = 0; i < numConnectors; i++) {
-            this.connectors[i] = new Connector(i + 1);
+    }
+
+    public void loadBootNotificationInfo(String model, String vendor, String boxSerialNumber, String chargePointSerialNumber,
+                String firmwareVersion, String iccid, String imsi, String meterSerialNumber, String meterType) {
+        this.model = model;
+        this.vendor = vendor;
+        this.boxSerialNumber = boxSerialNumber;
+        this.chargePointSerialNumber = chargePointSerialNumber;
+        this.firmwareVersion = firmwareVersion;
+        this.iccid = iccid;
+        this.imsi = imsi;
+        this.meterSerialNumber = meterSerialNumber;
+        this.meterType = meterType;
+        this.connectors = new ArrayList<>();
+    }
+    
+    /**
+     * Adds a connector to the charger's connector array.
+     *
+     * @param connector The connector to load.
+     */
+    public void addConnector(Connector connector) {
+        connectors.add(connector);
+    }
+
+    public void cleanMeterValues(long oneWeekAgo) {
+        for (Connector connector : connectors) {
+            if (connector != null) {
+                connector.cleanMeterValues(oneWeekAgo);
+            }
         }
     }
 
-    // Registra un cargador para que su limpieza sea gestionada por el scheduler global
-    public static void scheduleMeterValueCleanup(List<Charger> chargers) {
-        scheduler.scheduleAtFixedRate(() -> {
-            long oneWeekAgo = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
-            // Recorre todos los cargadores y limpia sus valores de medidor
-            for (Charger charger : chargers) {
-                charger.cleanupOldMeterValues(oneWeekAgo);
-            }
-        }, 1, 1, TimeUnit.DAYS);
+    public String getId() {
+        return id;
     }
-    */
+
+    public void updateStatus(int id, ChargePointStatus status) {
+        if (id == 0) { // Update status of charger
+            this.status = status;
+            return;
+        }
+        if (id - 1 > connectors.size()) { // If id not registered register all connectors till that id, (id are
+                                          // incremental from 1)
+            while (id - 1 > connectors.size()) {
+                connectors.add(new Connector(connectors.size()));
+            }
+        }
+        connectors.get(id - 1).updateStatus(status);
+    }
 }

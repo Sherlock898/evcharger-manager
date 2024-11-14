@@ -1,27 +1,43 @@
 package com.noder.cargadorws.Types;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Iterator;
 
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointStatus;
 import com.noder.cargadorws.ocpp.messages.types.MeterValue;
+
 
 public class Connector {
     private int id;
-    private Status status;
+    private ChargePointStatus status;
     private Deque<MeterValue> meterValueStart;
-    private ScheduledExecutorService scheduler;
-    // TODO: Clean meter values after some time
 
-    public enum Status {
-        Available,
-        Preparing,
-        Charging,
-        SuspendedEVSE,
-        SuspendedEV,
-        Finishing,
-        Reserved,
-        Unavailable,
-        Faulted
+    public Connector(int id){
+        this.id = id;
+        this.meterValueStart = new ArrayDeque<>();
     }
 
+    public void updateStatus(ChargePointStatus status){
+        this.status = status;
+    }
+    
+    /**
+     * Método para eliminar los MeterValues que tengan más de una semana en la deque.
+     * @param thresholdTime es el tiempo en milisegundos que representa el límite (una semana).
+     */
+    public void cleanMeterValues(long thresholdTime) {
+        synchronized (meterValueStart) {
+            Iterator<MeterValue> iterator = meterValueStart.iterator();
+            while(iterator.hasNext()) {
+                MeterValue meterValue = iterator.next();
+                if(meterValue.timestamp().getTime() <= thresholdTime) {
+                    iterator.remove();
+                }
+                else {
+                    break;
+                }
+            }
+        }
+    }
 }
