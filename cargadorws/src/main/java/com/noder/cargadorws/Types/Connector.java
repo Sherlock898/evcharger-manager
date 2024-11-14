@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointStatus;
 import com.noder.cargadorws.ocpp.messages.types.MeterValue;
 
@@ -11,24 +12,32 @@ import com.noder.cargadorws.ocpp.messages.types.MeterValue;
 public class Connector {
     private int id;
     private ChargePointStatus status;
-    private Deque<MeterValue> meterValueStart;
+    private ChargePointErrorCode errorCode;
+    private Deque<MeterValue> meterValues;
 
     public Connector(int id){
         this.id = id;
-        this.meterValueStart = new ArrayDeque<>();
+        this.meterValues = new ArrayDeque<>();
     }
 
-    public void updateStatus(ChargePointStatus status){
+    public void updateStatus(ChargePointStatus status, ChargePointErrorCode errorCode){
         this.status = status;
+        this.errorCode = status == ChargePointStatus.Faulted ? errorCode : null;
     }
-    
+
+    public void addeMeterValues(MeterValue[] meterValue) {
+        for(int i = 0; i < meterValue.length; i++) {
+            meterValues.add(meterValue[i]);
+        }
+    }
+
     /**
      * Método para eliminar los MeterValues que tengan más de una semana en la deque.
      * @param thresholdTime es el tiempo en milisegundos que representa el límite (una semana).
      */
     public void cleanMeterValues(long thresholdTime) {
-        synchronized (meterValueStart) {
-            Iterator<MeterValue> iterator = meterValueStart.iterator();
+        synchronized (meterValues) {
+            Iterator<MeterValue> iterator = meterValues.iterator();
             while(iterator.hasNext()) {
                 MeterValue meterValue = iterator.next();
                 if(meterValue.timestamp().getTime() <= thresholdTime) {

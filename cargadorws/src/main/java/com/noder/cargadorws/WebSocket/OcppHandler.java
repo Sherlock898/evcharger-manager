@@ -17,11 +17,19 @@ import com.noder.cargadorws.ocpp.messages.AuthorizeConf;
 import com.noder.cargadorws.ocpp.messages.AuthorizeReq;
 import com.noder.cargadorws.ocpp.messages.BootNotificationConf;
 import com.noder.cargadorws.ocpp.messages.BootNotificationReq;
+import com.noder.cargadorws.ocpp.messages.DataTransferConf;
+import com.noder.cargadorws.ocpp.messages.DataTransferReq;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationConf;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationConf;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq;
+import com.noder.cargadorws.ocpp.messages.HeartbeatConf;
+import com.noder.cargadorws.ocpp.messages.MeterValuesConf;
+import com.noder.cargadorws.ocpp.messages.MeterValuesReq;
+import com.noder.cargadorws.ocpp.messages.StatusNotificationConf;
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq;
 import com.noder.cargadorws.ocpp.messages.types.IdTagInfo;
+
 
 public class OcppHandler extends TextWebSocketHandler {
 
@@ -133,50 +141,55 @@ public class OcppHandler extends TextWebSocketHandler {
 				sendCallResult(session, messageId, new BootNotificationConf(new Date(), HEARTBEAT_INTERVAL_SECONDS, BootNotificationConf.Status.Accepted));
 				break;
 
-			/*case "DataTransfer":
+			case "DataTransfer":
 				DataTransferReq dataTransferReq = gson.fromJson(payload, DataTransferReq.class);
+				DataTransferConf dataTransferConf = new DataTransferConf(DataTransferConf.DataTransferStatus.Rejected, null);
 				// TODO: Handle DataTransfer
-				sendCallResult(session, messageId, new DataTransferConf());
-				break;*/
+				sendCallResult(session, messageId, dataTransferConf);
+				break;
 
 			case "DiagnosticsStatusNotification":
 				DiagnosticsStatusNotificationReq diagnosticsStatusNotificationReq = gson.fromJson(payload, DiagnosticsStatusNotificationReq.class);
 				// TODO: Handle DiagnosticsStatusNotification
+				chargerManager.updateDiagnosticsStatus(chargerId, diagnosticsStatusNotificationReq.status());
 				sendCallResult(session, messageId, new DiagnosticsStatusNotificationConf());
 				break;
 
+			// This message is used to notify the status of the firmware update.
 			case "FirmwareStatusNotification":
 				FirmwareStatusNotificationReq firmwareStatusNotificationReq = gson.fromJson(payload, FirmwareStatusNotificationReq.class);
 				// TODO: Handle FirmwareStatusNotification
+				chargerManager.updateFirmwareStatus(chargerId, firmwareStatusNotificationReq.status());
 				sendCallResult(session, messageId, new FirmwareStatusNotificationConf());
 				break;
-
-			/*case "Heartbeat":
-				HeartbeatReq heartbeatReq = gson.fromJson(payload, HeartbeatReq.class);
-				// TODO: Handle Heartbeat
-				sendCallResult(session, messageId, new HeartbeatConf());
+			
+			// This message is to verify that the connection is active.
+			case "Heartbeat":
+				sendCallResult(session, messageId, new HeartbeatConf(new Date()));
 				break;
 
 			case "MeterValues":
 				MeterValuesReq meterValuesReq = gson.fromJson(payload, MeterValuesReq.class);
 				// TODO: Handle Metervalues
+				// If connectorId is zero, then it belongs to the charger.
+				chargerManager.addMeterValues(meterValuesReq.connectorId(), chargerId, meterValuesReq.meterValue());
 				sendCallResult(session, messageId, new MeterValuesConf());
 				break;
 
-			case "StartTransaction":
+			/*case "StartTransaction":
 				StartTransactionReq startTransactionReq = gson.fromJson(payload, StartTransactionReq.class);
-				// TODO: Handle StartTransaction
+				chargerManager.startTransaction(chargerId, startTransactionReq.connectorId(), startTransactionReq.meterStart(), startTransactionReq.timestamp());
+
 				sendCallResult(session, messageId, new StartTransactionConf());
-				break;
+				break;*/
 
 			case "StatusNotification":
 				StatusNotificationReq statusNotificationReq = gson.fromJson(payload, StatusNotificationReq.class);
-				
-				// TODO: Handle StatusNotification
+				chargerManager.updateChargerStatus(chargerId, statusNotificationReq.connectorId(), statusNotificationReq.status(), statusNotificationReq.errorCode());
 				sendCallResult(session, messageId, new StatusNotificationConf());
 				break;
 
-			case "StopTransaction":
+			/*case "StopTransaction":
 				StopTransactionReq stopTransactionReq = gson.fromJson(payload, StopTransactionReq.class);
 				// TODO: Handle StopTransaction
 				sendCallResult(session, messageId, new StopTransactionConf());

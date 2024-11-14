@@ -1,7 +1,7 @@
 package com.noder.cargadorws.ocpp.messages;
 
-public record DiagnosticsStatusNotificationReq(Status status) {
-    public enum Status {
+public record DiagnosticsStatusNotificationReq(StatusDiagnostics status) {
+    public enum StatusDiagnostics {
         Idle,
         Uploaded,
         UploadFailed,

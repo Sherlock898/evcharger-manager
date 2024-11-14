@@ -1,16 +1,26 @@
 package com.noder.cargadorws.Types;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Date;
 
+import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
+import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointStatus;
+import com.noder.cargadorws.ocpp.messages.types.MeterValue;
 
 public class Charger {
     private String id;
     private ChargePointStatus status;
+    private ChargePointErrorCode errorCode;
+    private StatusDiagnostics statusDiagnostics;
+    private StatusFirmware statusFirmware;
     private ArrayList<Connector> connectors;
-
+    private ArrayDeque<MeterValue> meterValues;
     private String model;
     private String vendor;
+
 
     // Optional parameters
     public String boxSerialNumber;
@@ -20,6 +30,9 @@ public class Charger {
     public String imsi;
     public String meterSerialNumber;
     public String meterType;
+
+    // Transactions
+    ArrayDeque<Transaction> transactions;
 
     public Charger(String id){
         this.id = id;
@@ -37,6 +50,7 @@ public class Charger {
         this.meterSerialNumber = meterSerialNumber;
         this.meterType = meterType;
         this.connectors = new ArrayList<>();
+        this.transactions = new ArrayDeque<>();
     }
     
     /**
@@ -46,6 +60,21 @@ public class Charger {
      */
     public void addConnector(Connector connector) {
         connectors.add(connector);
+    }
+
+    public void addeMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
+        if(connectorId == 0) {
+            for(int i = 0; i < meterValue.length; i++) {
+                meterValues.add(meterValue[i]);
+            }
+        }
+        else {
+            connectors.get(connectorId).addeMeterValues(meterValue);
+        }
+    }
+
+    public void addMeterValuesConnector(int idConnector, MeterValue[] meterValue) {
+        connectors.get(idConnector).addeMeterValues(meterValue);
     }
 
     public void cleanMeterValues(long oneWeekAgo) {
@@ -60,9 +89,30 @@ public class Charger {
         return id;
     }
 
-    public void updateStatus(int id, ChargePointStatus status) {
+    public void setDiagnosticsStatus(StatusDiagnostics statusDiagnostics) {
+        this.statusDiagnostics = statusDiagnostics;
+    }
+
+    public StatusDiagnostics getDiagnosticsStatus() {
+        return statusDiagnostics;
+    }
+
+    public void setFirmwareStatus(StatusFirmware statusFirmware) {
+        this.statusFirmware = statusFirmware;
+    }
+
+    public StatusFirmware getFirmwareStatus() {
+        return statusFirmware;
+    }
+
+    public void startTransaction(int connectorId, Integer meterStart, Date startDate){
+        this.transactions.add(new Transaction(connectorId, meterStart, startDate));
+    }
+
+    public void updateStatus(int id, ChargePointStatus status, ChargePointErrorCode errorCode) {
         if (id == 0) { // Update status of charger
             this.status = status;
+            this.errorCode = status == ChargePointStatus.Faulted ? errorCode : null;
             return;
         }
         if (id - 1 > connectors.size()) { // If id not registered register all connectors till that id, (id are
@@ -71,6 +121,6 @@ public class Charger {
                 connectors.add(new Connector(connectors.size()));
             }
         }
-        connectors.get(id - 1).updateStatus(status);
+        connectors.get(id - 1).updateStatus(status, errorCode);
     }
 }

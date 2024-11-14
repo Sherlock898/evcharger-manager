@@ -1,11 +1,17 @@
 package com.noder.cargadorws.Types;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.noder.cargadorws.Types.Exceptions.ChargerNotFoundException;
+import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
+import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
+import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointStatus;
+import com.noder.cargadorws.ocpp.messages.types.MeterValue;
 
 
 public class ChargerManager {
@@ -22,6 +28,9 @@ public class ChargerManager {
 
     public Charger addCharger(String id) {
         return chargers.computeIfAbsent(id, key -> new Charger(id));
+    }
+    public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
+        chargers.get(chargerId).addeMeterValues(connectorId, chargerId, meterValue);
     }
 
     public Charger loadBootNotificationInfo(String id, String model, String vendor, String boxSerialNumber, String chargePointSerialNumber,
@@ -65,4 +74,44 @@ public class ChargerManager {
     public Map<String, Charger> getAllChargers() {
         return chargers;
     }
+
+    // Method to update the diagnostic status of a charger
+    public void updateDiagnosticsStatus(String chargerId, StatusDiagnostics statusDiagnostics) throws ChargerNotFoundException {
+        Charger charger = getCharger(chargerId);
+        if (charger == null) {
+            System.err.println("Charger not found for ID: " + chargerId);
+            return;
+        }
+        charger.setDiagnosticsStatus(statusDiagnostics);
+    }
+
+    public void updateFirmwareStatus(String chargerId, StatusFirmware statusFirmware) {
+        Charger charger = getCharger(chargerId);
+        if (charger == null) {
+            System.err.println("Charger not found for ID: " + chargerId);
+            return;
+        }
+        charger.setFirmwareStatus(statusFirmware);
+    }
+
+    public void updateChargerStatus(String chargerId, int connectorId, ChargePointStatus status, ChargePointErrorCode errorCode) throws ChargerNotFoundException{
+        Charger charger;
+        try {
+            charger = getCharger(chargerId);
+        } catch (ChargerNotFoundException e) {
+            throw e;
+        }
+        charger.updateStatus(connectorId, status, errorCode);
+    }
+
+    public void startTransaction(String chargerId, int connectorId, Integer meterStart, Date startDate){
+        Charger charger;
+        try {
+            charger = getCharger(chargerId);
+        } catch (ChargerNotFoundException e) {
+            throw e;
+        }
+        charger.startTransaction(connectorId, meterStart, startDate);
+    }
+
 }
