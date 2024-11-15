@@ -115,9 +115,9 @@ public class Charger {
             this.errorCode = status == ChargePointStatus.Faulted ? errorCode : null;
             return;
         }
-        if (id - 1 > connectors.size()) { // If id not registered register all connectors till that id, (id are
+        if (id - 1 >= connectors.size()) { // If id not registered register all connectors till that id, (id are
                                           // incremental from 1)
-            while (id - 1 > connectors.size()) {
+            while (id - 1 >= connectors.size()) {
                 connectors.add(new Connector(connectors.size()));
             }
         }
