@@ -1,8 +1,9 @@
 package com.noder.cargadorws.Types;
 
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.time.Instant;
+import java.util.Iterator;
 
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
@@ -62,19 +63,19 @@ public class Charger {
         connectors.add(connector);
     }
 
-    public void addeMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
+    public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
         if(connectorId == 0) {
             for(int i = 0; i < meterValue.length; i++) {
                 meterValues.add(meterValue[i]);
             }
         }
         else {
-            connectors.get(connectorId).addeMeterValues(meterValue);
+            connectors.get(connectorId).addMeterValues(meterValue);
         }
     }
 
     public void addMeterValuesConnector(int idConnector, MeterValue[] meterValue) {
-        connectors.get(idConnector).addeMeterValues(meterValue);
+        connectors.get(idConnector).addMeterValues(meterValue);
     }
 
     public void cleanMeterValues(long oneWeekAgo) {
@@ -105,8 +106,10 @@ public class Charger {
         return statusFirmware;
     }
 
-    public void startTransaction(int connectorId, Integer meterStart, Instant startDate){
-        this.transactions.add(new Transaction(connectorId, meterStart, startDate));
+    public Integer startTransaction(int connectorId, Integer meterStart, Instant startDate){
+        Transaction transaction = new Transaction(connectorId, meterStart, startDate);
+        this.transactions.add(transaction);
+        return transaction.getTransactionId();
     }
 
     public void updateStatus(int id, ChargePointStatus status, ChargePointErrorCode errorCode) {
@@ -122,5 +125,17 @@ public class Charger {
             }
         }
         connectors.get(id - 1).updateStatus(status, errorCode);
+    }
+
+    public void stopTransaction(Integer transactionId, Integer meterStop, Instant timestamp) {
+        // Start searching for the back of the queue
+        Iterator<Transaction> iterator = transactions.descendingIterator();
+        while (iterator.hasNext()) {
+            Transaction transaction = iterator.next();
+            if (transaction.getTransactionId() == transactionId) {
+                transaction.endTransaction(meterStop);
+                return;
+            }
+        }
     }
 }

@@ -3,8 +3,10 @@ package com.noder.cargadorws.Types;
 import java.time.Instant;
 
 public class Transaction {
-    
-    private long transactionId;
+
+    private static Integer transactionCounter = 0;
+
+    private Integer transactionId;
     private int connectorId;
     private Instant startDate;
     private Instant endDate;
@@ -13,6 +15,7 @@ public class Transaction {
     private TransactionStatus status;
 
     public Transaction(int connectorId, Integer meterStart, Instant startDate){
+        this.transactionId = transactionCounter++;
         this.connectorId = connectorId;
         this.startDate = startDate;
         this.meterStart = meterStart;
@@ -32,5 +35,7 @@ public class Transaction {
         Ended
     };
 
-    
+    public Integer getTransactionId() {
+        return transactionId;
+    }
 }

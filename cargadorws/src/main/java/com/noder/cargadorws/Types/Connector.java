@@ -25,7 +25,7 @@ public class Connector {
         this.errorCode = status == ChargePointStatus.Faulted ? errorCode : null;
     }
 
-    public void addeMeterValues(MeterValue[] meterValue) {
+    public void addMeterValues(MeterValue[] meterValue) {
         for(int i = 0; i < meterValue.length; i++) {
             meterValues.add(meterValue[i]);
         }

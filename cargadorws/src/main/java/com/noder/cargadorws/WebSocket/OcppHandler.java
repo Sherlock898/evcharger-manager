@@ -28,9 +28,14 @@ import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq;
 import com.noder.cargadorws.ocpp.messages.HeartbeatConf;
 import com.noder.cargadorws.ocpp.messages.MeterValuesConf;
 import com.noder.cargadorws.ocpp.messages.MeterValuesReq;
+import com.noder.cargadorws.ocpp.messages.StartTransactionConf;
+import com.noder.cargadorws.ocpp.messages.StartTransactionReq;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationConf;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq;
+import com.noder.cargadorws.ocpp.messages.StopTransactionConf;
+import com.noder.cargadorws.ocpp.messages.StopTransactionReq;
 import com.noder.cargadorws.ocpp.messages.types.IdTagInfo;
+import com.noder.cargadorws.ocpp.messages.types.IdTagInfo.AuthorizationStatus;
 
 
 public class OcppHandler extends TextWebSocketHandler {
@@ -42,7 +47,7 @@ public class OcppHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) {
 		URI uri = session.getUri();
-		if(uri == null){return;}
+		if(uri == null){return;}	
 		String uris = uri.toString();
 		String[] uriParts = uris.split("/");
         String id = uriParts[uriParts.length - 1];
@@ -178,12 +183,11 @@ public class OcppHandler extends TextWebSocketHandler {
 				sendCallResult(session, uniqueId, new MeterValuesConf());
 				break;
 
-			/*case "StartTransaction":
+			case "StartTransaction":
 				StartTransactionReq startTransactionReq = gson.fromJson(payload, StartTransactionReq.class);
-				chargerManager.startTransaction(chargerId, startTransactionReq.connectorId(), startTransactionReq.meterStart(), startTransactionReq.timestamp());
-
-				sendCallResult(session, uniqueId, new StartTransactionConf());
-				break;*/
+				Integer transactionId = chargerManager.startTransaction(chargerId, startTransactionReq.connectorId(), startTransactionReq.meterStart(), startTransactionReq.timestamp());
+				sendCallResult(session, uniqueId, new StartTransactionConf(new IdTagInfo(null, null, AuthorizationStatus.Accepted), transactionId));
+				break;
 
 			case "StatusNotification":
 				StatusNotificationReq statusNotificationReq = gson.fromJson(payload, StatusNotificationReq.class);
@@ -191,11 +195,11 @@ public class OcppHandler extends TextWebSocketHandler {
 				sendCallResult(session, uniqueId, new StatusNotificationConf());
 				break;
 
-			/*case "StopTransaction":
+			case "StopTransaction":
 				StopTransactionReq stopTransactionReq = gson.fromJson(payload, StopTransactionReq.class);
-				// TODO: Handle StopTransaction
-				sendCallResult(session, uniqueId, new StopTransactionConf());
-				break;*/
+				chargerManager.stopTransaction(chargerId, stopTransactionReq.transactionId(), stopTransactionReq.meterStop(), stopTransactionReq.timestamp());
+				sendCallResult(session, uniqueId, new StopTransactionConf(null));
+				break;
 		}
 	}
 

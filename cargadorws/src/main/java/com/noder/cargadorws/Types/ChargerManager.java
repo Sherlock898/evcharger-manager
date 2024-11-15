@@ -1,11 +1,10 @@
 package com.noder.cargadorws.Types;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import java.time.Instant;
 
 import com.noder.cargadorws.Types.Exceptions.ChargerNotFoundException;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
@@ -31,7 +30,7 @@ public class ChargerManager {
         return chargers.computeIfAbsent(id, key -> new Charger(id));
     }
     public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
-        chargers.get(chargerId).addeMeterValues(connectorId, chargerId, meterValue);
+        chargers.get(chargerId).addMeterValues(connectorId, chargerId, meterValue);
     }
 
     public Charger loadBootNotificationInfo(String id, String model, String vendor, String boxSerialNumber, String chargePointSerialNumber,
@@ -105,14 +104,25 @@ public class ChargerManager {
         charger.updateStatus(connectorId, status, errorCode);
     }
 
-    public void startTransaction(String chargerId, int connectorId, Integer meterStart, Instant startDate){
+    public Integer startTransaction(String chargerId, int connectorId, Integer meterStart, Instant startDate){
         Charger charger;
         try {
             charger = getCharger(chargerId);
         } catch (ChargerNotFoundException e) {
             throw e;
         }
-        charger.startTransaction(connectorId, meterStart, startDate);
+        return charger.startTransaction(connectorId, meterStart, startDate);
+    }
+
+    public void stopTransaction(String chargerId, Integer transactionId, Integer meterStop, Instant timestamp) {
+        Charger charger;
+        try {
+            charger = getCharger(chargerId);
+        } catch (ChargerNotFoundException e) {
+            System.err.println("Charger not found for ID: " + chargerId);
+            return;
+        }
+        charger.stopTransaction(transactionId, meterStop, timestamp);
     }
 
 }
