@@ -1,8 +1,8 @@
 package com.noder.cargadorws.ocpp.messages;
 
-import java.util.Date;
+import java.time.Instant;
 
-public record StatusNotificationReq(Integer connectorId, ChargePointErrorCode errorCode, String info, ChargePointStatus status, Date dateTime, String vendorId, String vendorErrorCode) {
+public record StatusNotificationReq(Integer connectorId, ChargePointErrorCode errorCode, String info, ChargePointStatus status, Instant dateTime, String vendorId, String vendorErrorCode) {
     public enum ChargePointErrorCode{
         ConnectorLockFailure,
         EVCommunicationError,

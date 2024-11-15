@@ -1,5 +1,5 @@
 package com.noder.cargadorws.ocpp.messages.types;
-import java.util.Date;
+import java.time.Instant;
 
 public record ChargingProfile(
     Integer chargingProfileId,
@@ -8,8 +8,8 @@ public record ChargingProfile(
     ChargingProfilePurposeType chargingProfilePurpose,
     ChargingProfileKindType chargingProfileKindType,
     RecurrencyKindType recurrencyKind,
-    Date validFrom,
-    Date validTo,
+    Instant validFrom,
+    Instant validTo,
     ChargingSchedule chargingSchedule
 ) {
     public enum ChargingProfilePurposeType {

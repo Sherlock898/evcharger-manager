@@ -40,7 +40,7 @@ public class Connector {
             Iterator<MeterValue> iterator = meterValues.iterator();
             while(iterator.hasNext()) {
                 MeterValue meterValue = iterator.next();
-                if(meterValue.timestamp().getTime() <= thresholdTime) {
+                if(meterValue.timestamp().toEpochMilli() <= thresholdTime) {
                     iterator.remove();
                 }
                 else {

@@ -1,18 +1,20 @@
 package com.noder.cargadorws.WebSocket;
 
 import java.net.URI;
-import java.util.Date;
+import java.time.Instant;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.noder.cargadorws.Types.ChargerManager;
+import com.noder.cargadorws.Types.Utils.InstantAdapter;
 import com.noder.cargadorws.ocpp.messages.AuthorizeConf;
 import com.noder.cargadorws.ocpp.messages.AuthorizeReq;
 import com.noder.cargadorws.ocpp.messages.BootNotificationConf;
@@ -33,7 +35,7 @@ import com.noder.cargadorws.ocpp.messages.types.IdTagInfo;
 
 public class OcppHandler extends TextWebSocketHandler {
 
-	private final Gson gson = new Gson();
+	private final Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 	private final int HEARTBEAT_INTERVAL_SECONDS = 30;
 	private final ChargerManager chargerManager = ChargerManager.getInstance();
 
@@ -138,7 +140,7 @@ public class OcppHandler extends TextWebSocketHandler {
 									bootNotificationReq.meterSerialNumber(),
 									bootNotificationReq.meterType());
 				// TODO: Check when to not accept boot notifications
-				sendCallResult(session, uniqueId, new BootNotificationConf(new Date(), HEARTBEAT_INTERVAL_SECONDS, BootNotificationConf.Status.Accepted));
+				sendCallResult(session, uniqueId, new BootNotificationConf(Instant.now(), HEARTBEAT_INTERVAL_SECONDS, BootNotificationConf.Status.Accepted));
 				break;
 
 			case "DataTransfer":
@@ -165,7 +167,7 @@ public class OcppHandler extends TextWebSocketHandler {
 			
 			// This message is to verify that the connection is active.
 			case "Heartbeat":
-				sendCallResult(session, uniqueId, new HeartbeatConf(new Date()));
+				sendCallResult(session, uniqueId, new HeartbeatConf(Instant.now()));
 				break;
 
 			case "MeterValues":

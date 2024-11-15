@@ -2,7 +2,7 @@ package com.noder.cargadorws.Types;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
 
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
@@ -105,7 +105,7 @@ public class Charger {
         return statusFirmware;
     }
 
-    public void startTransaction(int connectorId, Integer meterStart, Date startDate){
+    public void startTransaction(int connectorId, Integer meterStart, Instant startDate){
         this.transactions.add(new Transaction(connectorId, meterStart, startDate));
     }
 

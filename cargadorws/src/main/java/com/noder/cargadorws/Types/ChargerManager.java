@@ -1,10 +1,11 @@
 package com.noder.cargadorws.Types;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import java.time.Instant;
 
 import com.noder.cargadorws.Types.Exceptions.ChargerNotFoundException;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
@@ -104,7 +105,7 @@ public class ChargerManager {
         charger.updateStatus(connectorId, status, errorCode);
     }
 
-    public void startTransaction(String chargerId, int connectorId, Integer meterStart, Date startDate){
+    public void startTransaction(String chargerId, int connectorId, Integer meterStart, Instant startDate){
         Charger charger;
         try {
             charger = getCharger(chargerId);
