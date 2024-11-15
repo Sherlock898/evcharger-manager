@@ -123,7 +123,7 @@ public class OcppHandler extends TextWebSocketHandler {
 			AuthorizeReq authorizeReq = gson.fromJson(payload, AuthorizeReq.class);
 			// TODO: We are authorizing everything, is this the intended behaviour?
 			IdTagInfo idTagInfo = new IdTagInfo(null, authorizeReq.idTag(), IdTagInfo.AuthorizationStatus.Accepted);
-			sendCallResult(session, messageId, new AuthorizeConf(idTagInfo));
+			sendCallResult(session, uniqueId, new AuthorizeConf(idTagInfo));
 			break;
 
 			case "BootNotification":
@@ -138,21 +138,21 @@ public class OcppHandler extends TextWebSocketHandler {
 									bootNotificationReq.meterSerialNumber(),
 									bootNotificationReq.meterType());
 				// TODO: Check when to not accept boot notifications
-				sendCallResult(session, messageId, new BootNotificationConf(new Date(), HEARTBEAT_INTERVAL_SECONDS, BootNotificationConf.Status.Accepted));
+				sendCallResult(session, uniqueId, new BootNotificationConf(new Date(), HEARTBEAT_INTERVAL_SECONDS, BootNotificationConf.Status.Accepted));
 				break;
 
 			case "DataTransfer":
 				DataTransferReq dataTransferReq = gson.fromJson(payload, DataTransferReq.class);
 				DataTransferConf dataTransferConf = new DataTransferConf(DataTransferConf.DataTransferStatus.Rejected, null);
 				// TODO: Handle DataTransfer
-				sendCallResult(session, messageId, dataTransferConf);
+				sendCallResult(session, uniqueId, dataTransferConf);
 				break;
 
 			case "DiagnosticsStatusNotification":
 				DiagnosticsStatusNotificationReq diagnosticsStatusNotificationReq = gson.fromJson(payload, DiagnosticsStatusNotificationReq.class);
 				// TODO: Handle DiagnosticsStatusNotification
 				chargerManager.updateDiagnosticsStatus(chargerId, diagnosticsStatusNotificationReq.status());
-				sendCallResult(session, messageId, new DiagnosticsStatusNotificationConf());
+				sendCallResult(session, uniqueId, new DiagnosticsStatusNotificationConf());
 				break;
 
 			// This message is used to notify the status of the firmware update.
@@ -160,12 +160,12 @@ public class OcppHandler extends TextWebSocketHandler {
 				FirmwareStatusNotificationReq firmwareStatusNotificationReq = gson.fromJson(payload, FirmwareStatusNotificationReq.class);
 				// TODO: Handle FirmwareStatusNotification
 				chargerManager.updateFirmwareStatus(chargerId, firmwareStatusNotificationReq.status());
-				sendCallResult(session, messageId, new FirmwareStatusNotificationConf());
+				sendCallResult(session, uniqueId, new FirmwareStatusNotificationConf());
 				break;
 			
 			// This message is to verify that the connection is active.
 			case "Heartbeat":
-				sendCallResult(session, messageId, new HeartbeatConf(new Date()));
+				sendCallResult(session, uniqueId, new HeartbeatConf(new Date()));
 				break;
 
 			case "MeterValues":
@@ -173,35 +173,35 @@ public class OcppHandler extends TextWebSocketHandler {
 				// TODO: Handle Metervalues
 				// If connectorId is zero, then it belongs to the charger.
 				chargerManager.addMeterValues(meterValuesReq.connectorId(), chargerId, meterValuesReq.meterValue());
-				sendCallResult(session, messageId, new MeterValuesConf());
+				sendCallResult(session, uniqueId, new MeterValuesConf());
 				break;
 
 			/*case "StartTransaction":
 				StartTransactionReq startTransactionReq = gson.fromJson(payload, StartTransactionReq.class);
 				chargerManager.startTransaction(chargerId, startTransactionReq.connectorId(), startTransactionReq.meterStart(), startTransactionReq.timestamp());
 
-				sendCallResult(session, messageId, new StartTransactionConf());
+				sendCallResult(session, uniqueId, new StartTransactionConf());
 				break;*/
 
 			case "StatusNotification":
 				StatusNotificationReq statusNotificationReq = gson.fromJson(payload, StatusNotificationReq.class);
 				chargerManager.updateChargerStatus(chargerId, statusNotificationReq.connectorId(), statusNotificationReq.status(), statusNotificationReq.errorCode());
-				sendCallResult(session, messageId, new StatusNotificationConf());
+				sendCallResult(session, uniqueId, new StatusNotificationConf());
 				break;
 
 			/*case "StopTransaction":
 				StopTransactionReq stopTransactionReq = gson.fromJson(payload, StopTransactionReq.class);
 				// TODO: Handle StopTransaction
-				sendCallResult(session, messageId, new StopTransactionConf());
+				sendCallResult(session, uniqueId, new StopTransactionConf());
 				break;*/
 		}
 	}
 
 	// Send callResult
-	private void sendCallResult(WebSocketSession session, int messageId, Object payload) {
+	private void sendCallResult(WebSocketSession session, String uniqueId, Object payload) {
 		JsonArray jsonArray = new JsonArray();
 		jsonArray.add(3);
-		jsonArray.add(messageId);
+		jsonArray.add(uniqueId);
 		jsonArray.add(gson.toJsonTree(payload));
 		try {
 			session.sendMessage(new TextMessage(gson.toJson(jsonArray)));
