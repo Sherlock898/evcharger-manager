@@ -2,6 +2,7 @@ package com.noder.cargadorws.Types;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.time.Instant;
 
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
@@ -105,8 +106,10 @@ public class Charger {
         return statusFirmware;
     }
 
-    public void startTransaction(int connectorId, Integer meterStart, Instant startDate){
-        this.transactions.add(new Transaction(connectorId, meterStart, startDate));
+    public Integer startTransaction(int connectorId, Integer meterStart, Instant startDate){
+        Transaction transaction = new Transaction(connectorId, meterStart, startDate);
+        this.transactions.add(transaction);
+        return transaction.getTransactionId();
     }
 
     public void updateStatus(int id, ChargePointStatus status, ChargePointErrorCode errorCode) {
@@ -122,5 +125,17 @@ public class Charger {
             }
         }
         connectors.get(id - 1).updateStatus(status, errorCode);
+    }
+
+    public void stopTransaction(Integer transactionId, Integer meterStop, Instant timestamp) {
+        // Start searching for the back of the queue
+        Iterator<Transaction> iterator = transactions.descendingIterator();
+        while (iterator.hasNext()) {
+            Transaction transaction = iterator.next();
+            if (transaction.getTransactionId() == transactionId) {
+                transaction.endTransaction(meterStop);
+                return;
+            }
+        }
     }
 }

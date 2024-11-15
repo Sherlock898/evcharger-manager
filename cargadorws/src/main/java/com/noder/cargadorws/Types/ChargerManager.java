@@ -105,14 +105,25 @@ public class ChargerManager {
         charger.updateStatus(connectorId, status, errorCode);
     }
 
-    public void startTransaction(String chargerId, int connectorId, Integer meterStart, Instant startDate){
+    public Integer startTransaction(String chargerId, int connectorId, Integer meterStart, Instant startDate){
         Charger charger;
         try {
             charger = getCharger(chargerId);
         } catch (ChargerNotFoundException e) {
             throw e;
         }
-        charger.startTransaction(connectorId, meterStart, startDate);
+        return charger.startTransaction(connectorId, meterStart, startDate);
+    }
+
+    public void stopTransaction(String chargerId, Integer transactionId, Integer meterStop, Instant timestamp) {
+        Charger charger;
+        try {
+            charger = getCharger(chargerId);
+        } catch (ChargerNotFoundException e) {
+            System.err.println("Charger not found for ID: " + chargerId);
+            return;
+        }
+        charger.stopTransaction(transactionId, meterStop, timestamp);
     }
 
 }
