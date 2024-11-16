@@ -1,6 +1,6 @@
 package com.noder.cargadorws.ocpp.messages;
 
-import java.util.Date;
+import java.time.Instant;
 
-public record UpdateFirmwareReq(String location, Integer retries, Date retrieveDate, Integer retryInterval) {
+public record UpdateFirmwareReq(String location, Integer retries, Instant retrieveDate, Integer retryInterval) {
 }

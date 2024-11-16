@@ -1,3 +1,5 @@
 package com.noder.cargadorws.ocpp.messages;
 
-public record AuthorizeConf(String idTagInfo) {}
+import com.noder.cargadorws.ocpp.messages.types.IdTagInfo;
+
+public record AuthorizeConf(IdTagInfo idTagInfo) {}

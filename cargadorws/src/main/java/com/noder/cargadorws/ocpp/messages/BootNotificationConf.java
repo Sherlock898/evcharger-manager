@@ -1,7 +1,7 @@
 package com.noder.cargadorws.ocpp.messages;
-import java.util.Date;
+import java.time.Instant;
 
-public record BootNotificationConf(Date currentTime, Integer interval, Status status) {
+public record BootNotificationConf(Instant currentTime, Integer interval, Status status) {
     public enum Status {
         Accepted,
         Pending,
