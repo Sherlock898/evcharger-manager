@@ -51,7 +51,7 @@ public class OcppHandshakeHandler implements HandshakeHandler{
         }
         
         // Set response subprotocol to ocpp1.6
-        response.getHeaders().add("Sec-WebSocket-Protocol", "ocpp1.6");    
+        response.getHeaders().add("Sec-WebSocket-Protocol", "ocpp1.6");
         return defaultHandler.doHandshake(request, response, wsHandler, attributes);
     }
 }

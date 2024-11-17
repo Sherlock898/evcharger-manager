@@ -5,6 +5,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;

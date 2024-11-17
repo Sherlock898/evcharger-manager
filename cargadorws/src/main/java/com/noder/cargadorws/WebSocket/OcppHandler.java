@@ -2,6 +2,10 @@ package com.noder.cargadorws.WebSocket;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.AbstractMap;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,21 +23,30 @@ import com.noder.cargadorws.ocpp.messages.AuthorizeConf;
 import com.noder.cargadorws.ocpp.messages.AuthorizeReq;
 import com.noder.cargadorws.ocpp.messages.BootNotificationConf;
 import com.noder.cargadorws.ocpp.messages.BootNotificationReq;
+import com.noder.cargadorws.ocpp.messages.CancelReservationReq;
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq.AvailabilityType;
 import com.noder.cargadorws.ocpp.messages.DataTransferConf;
 import com.noder.cargadorws.ocpp.messages.DataTransferReq;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationConf;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationConf;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq;
+import com.noder.cargadorws.ocpp.messages.GetCompositeScheduleReq.ChargingRateUnitType;
 import com.noder.cargadorws.ocpp.messages.HeartbeatConf;
 import com.noder.cargadorws.ocpp.messages.MeterValuesConf;
 import com.noder.cargadorws.ocpp.messages.MeterValuesReq;
+import com.noder.cargadorws.ocpp.messages.RemoteStopTransactionReq;
+import com.noder.cargadorws.ocpp.messages.ResetReq.ResetType;
+import com.noder.cargadorws.ocpp.messages.SendLocalListReq.UpdateType;
 import com.noder.cargadorws.ocpp.messages.StartTransactionConf;
 import com.noder.cargadorws.ocpp.messages.StartTransactionReq;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationConf;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq;
 import com.noder.cargadorws.ocpp.messages.StopTransactionConf;
 import com.noder.cargadorws.ocpp.messages.StopTransactionReq;
+import com.noder.cargadorws.ocpp.messages.types.AuthorizationData;
+import com.noder.cargadorws.ocpp.messages.types.ChargingProfile;
+import com.noder.cargadorws.ocpp.messages.types.ChargingProfile.ChargingProfilePurposeType;
 import com.noder.cargadorws.ocpp.messages.types.IdTagInfo;
 import com.noder.cargadorws.ocpp.messages.types.IdTagInfo.AuthorizationStatus;
 
@@ -43,53 +56,56 @@ public class OcppHandler extends TextWebSocketHandler {
 	private final Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 	private final int HEARTBEAT_INTERVAL_SECONDS = 30;
 	private final ChargerManager chargerManager = ChargerManager.getInstance();
+	private Deque<AbstractMap.SimpleEntry<String, String>> callResultIdQueue = new ArrayDeque<>();
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) {
 		URI uri = session.getUri();
-		if(uri == null){return;}	
+		if(uri == null){return;}
 		String uris = uri.toString();
 		String[] uriParts = uris.split("/");
         String id = uriParts[uriParts.length - 1];
 
 		// Add charger object to manager, does nothing if already created
-		chargerManager.addCharger(id);
-		// TODO: Preguntarle a geoffrey si guardamos id o el objeto entero, si es una referencia es un puntero no mas? super lijero lol
+		chargerManager.addCharger(id, session);
 		session.getAttributes().put("chargerId", id);
 	}
 
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage message) {
-		// Calls message structure:
-		// [2, "UniqueId", "action", {payload}]
-		// Parse call
-		JsonArray call;
+		// Two types of messages: call and call result
+		// Call: [2, "UniqueId", "action", {payload}]
+		// Call Result: [3, "UniqueId", {payload}]
+		JsonArray deserializedMessage;
 		try {
-			call = JsonParser.parseString(message.getPayload()).getAsJsonArray();
+			deserializedMessage = JsonParser.parseString(message.getPayload()).getAsJsonArray();
 		} catch (JsonParseException e) {
 			System.err.println("Error parsing JSON: " + e.getMessage());
 			return;
 		}
+
+		int messageId;
+		try {
+			messageId = deserializedMessage.get(0).getAsInt();
+		} catch (Exception e) {
+			System.err.println("Error parsing JSON: " + e.getMessage());
+			return;
+		}
+		// Reroute to processing functions
+		if (messageId == 2) processCall(session, deserializedMessage);
+		else if(messageId == 3) processCallResult(session, deserializedMessage);
+
+	}
+
+	private void processCall(WebSocketSession session, JsonArray call){
+		// Calls message structure:
+		// [2, "UniqueId", "action", {payload}]
 
 		// Check for message integrity: 4 fields, message id == 2
 		if (call.size() != 4) {
 			System.err.println("Error in message length");
 			return;
 		}
-
-		int messageId;
-		try {
-			messageId = call.get(0).getAsInt();
-		} catch (Exception e) {
-			System.err.println("Error parsing JSON: " + e.getMessage());
-			return;
-		}
-		if (messageId != 2) {
-			// TODO: handle call error
-			System.err.println("Wrong message id");
-			return;
-		}
-
 		String uniqueId;
 		try {
 			uniqueId = call.get(1).getAsString();
@@ -102,6 +118,7 @@ public class OcppHandler extends TextWebSocketHandler {
 			return;
 		}
 
+		//Get action
 		String action;
 		try {
 			action = call.get(2).getAsString();
@@ -203,6 +220,193 @@ public class OcppHandler extends TextWebSocketHandler {
 		}
 	}
 
+	private void processCallResult(WebSocketSession session, JsonArray callResult){
+		// Call result message structure:
+		// [3, "UniqueId", {payload}]
+
+		// Check for message integrity: 3 fields, message id == 3
+		if (callResult.size() != 3) {
+			System.err.println("Error in message length");
+			return;
+		}
+		String uniqueId;
+		try {
+			uniqueId = callResult.get(1).getAsString();
+		} catch (Exception e) {
+			System.err.println("Couldn't parse to string: " + callResult.get(1));
+			return;
+		}
+		if (uniqueId == null) {
+			System.err.println("Null uniqueId");
+			return;
+		}
+
+		// Get message type from callResult ids queue
+		String messageType = "";
+        Iterator<AbstractMap.SimpleEntry<String, String>> iterator = callResultIdQueue.iterator();
+        while (iterator.hasNext()) {
+            AbstractMap.SimpleEntry<String, String> entry = iterator.next();
+            if (entry.getKey().equals(uniqueId)) {
+                messageType = entry.getValue();
+                iterator.remove(); // Remove from queue
+                break;
+            }
+        }
+
+		switch (messageType){
+			case "CancelReservation":
+				break;
+			case "ChangeAvailability":
+				break;
+			case "ChangeConfiguration":
+				break;
+			case "ClearCache":
+				break;
+			case "ClearChargingProfile":
+				break;
+			case "DataTransfer":
+				break;
+			case "GetCompositeSchedule":
+				break;
+			case "GetConfiguration":
+				break;
+			case "GetDiagnostics":
+				break;
+			case "GetLocalListVersion":
+				break;
+			case "RemoteStartTransaction":
+				break;
+			case "RemoteStopTransaction":
+
+				break;
+			case "ReserveNow":
+				break;
+			case "Reset":
+				break;
+			case "SendLocalList":
+				break;
+			case "SetChargingProfile":
+				break;
+			case "TriggerMessage":
+				break;
+			case "UnlockConnector":
+				break;
+			case "UpdateFirmware":
+				break;
+			default:
+				throw new IllegalStateException("Unrecognized operation: " + messageType);
+		}
+		
+	}
+
+	public void sendCancelReservation(String chargerId, Integer reservationId){
+		// TODO: All reservation related classes and logic
+		CancelReservationReq cancelReservationReq = new CancelReservationReq(reservationId);
+		WebSocketSession session = chargerManager.getSession(chargerId);
+		if (session == null) {
+			System.err.println("Error, charger session not found. Id: " + chargerId);
+			return;
+		}
+		sendCall(session, "CancelReservation", cancelReservationReq);
+	}
+
+	public void sendChangeAvailability(String chargerId, int connectorId, AvailabilityType type){
+		// TODO: Implement
+	
+	}
+
+	public void sendChangeConfiguration(String chargerId, String key, String value){
+		// TODO: Implement
+	}
+
+	public void sendClearCache(String chargerId){
+		// TODO: Implement
+	}
+
+	public void sendClearChargingProfile(String chargerId, Integer id, Integer connectorId, ChargingProfilePurposeType chargingProfilePurpose, Integer stackLevel){
+		// TODO: Implement
+	}
+
+	public void sendDataTransfer(String chargerId, String vendorId, String messageId, String data){
+		// TODO: Implement
+	}
+	
+	public void sendGetCompositeSchedule(String chargerId, Integer connectorId, Integer duration, ChargingRateUnitType chargingRateUnit){
+		// TODO: Implement
+	}
+
+	public void sendGetConfiguration(String chargerId, String key){
+		// TODO: Implement
+	}
+
+	public void sendGetDiagnostics(String chargerId, String location, Integer retries, Integer retryeInterval, Instant startTime, Instant stopTime){
+		// TODO: Implement
+	}
+
+	public void sendGetLocalListVersion(String chargerId){
+		// TODO: Implement
+	}
+
+	public void sendRemoteStartTransaction(String chargerId, Integer connectorId, String idToken, ChargingProfile chargingProfile){
+		// TODO: Implement
+	}
+
+	public void sendRemoteStopTransaction(String chargerId, Integer transactionId){
+		// TODO: Implement
+		WebSocketSession session = chargerManager.getSession(chargerId);
+		if(session == null) throw new IllegalStateException("No active session found for chargerId: " + chargerId);
+		sendCall(session, "RemoteStopTransaction", new RemoteStopTransactionReq(transactionId));
+	}
+
+	public void sendReserveNow(String chargerId, int connectorId, Instant expiryDate, String idTag, String parentIdTag, int reservationId){
+		// TODO: Implement
+	}
+
+	public void sendReset(String chargerId, ResetType type){
+		// TODO: Implement
+	}
+
+	public void sendLocalList(String chargerId, Integer listVersion, AuthorizationData localAuthorizationList, UpdateType updateType){
+		// TODO: Implement
+	}
+
+	public void sendSetChargingProfile(String chargerId, int connectorId, ChargingProfile csChargingProfile){
+		// TODO: Implement
+	}
+
+	public void sendTriggerMessage(String chargerId, String requestedMessage, Integer connectorId){
+		// TODO: Implement
+	}
+
+	public void sendUnlockConnector(String chargerId, int connectorId){
+		// TODO: Implement
+	}
+
+	public void sendUpdateFirmware(String chargerId, String location, Instant retrieveDate, Integer retryInterval){
+		// TODO: Implement
+	}
+	
+	private String generateUniqueId() {
+		return java.util.UUID.randomUUID().toString();
+	}
+
+	// Send call
+	private void sendCall(WebSocketSession session, String messageType, Object payload){
+		JsonArray jsonArray = new JsonArray();
+		jsonArray.add(2);
+		String uniqueId = generateUniqueId();
+		jsonArray.add(uniqueId);
+		jsonArray.add(messageType);
+		jsonArray.add(gson.toJsonTree(payload));
+		try {
+			session.sendMessage(new TextMessage(gson.toJson(jsonArray)));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		callResultIdQueue.add(new AbstractMap.SimpleEntry<>(uniqueId, messageType));
+	}
+
 	// Send callResult
 	private void sendCallResult(WebSocketSession session, String uniqueId, Object payload) {
 		JsonArray jsonArray = new JsonArray();
@@ -215,5 +419,4 @@ public class OcppHandler extends TextWebSocketHandler {
 			e.printStackTrace();
 		}
 	}
-
 }
