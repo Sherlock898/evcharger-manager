@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq.AvailabilityType;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointStatus;
 import com.noder.cargadorws.ocpp.messages.types.MeterValue;
@@ -14,6 +15,7 @@ public class Connector {
     private ChargePointStatus status;
     private ChargePointErrorCode errorCode;
     private Deque<MeterValue> meterValues;
+    private AvailabilityType availabilityType;
 
     public Connector(int id){
         this.id = id;
@@ -29,6 +31,14 @@ public class Connector {
         for(int i = 0; i < meterValue.length; i++) {
             meterValues.add(meterValue[i]);
         }
+    }
+
+    public void setAvailabilityType(AvailabilityType availabilityType) {
+        this.availabilityType = availabilityType;
+    }
+
+    public AvailabilityType getAvailabilityType() {
+        return availabilityType;
     }
 
     /**

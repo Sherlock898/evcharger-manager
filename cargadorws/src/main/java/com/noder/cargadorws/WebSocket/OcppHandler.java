@@ -24,6 +24,7 @@ import com.noder.cargadorws.ocpp.messages.AuthorizeReq;
 import com.noder.cargadorws.ocpp.messages.BootNotificationConf;
 import com.noder.cargadorws.ocpp.messages.BootNotificationReq;
 import com.noder.cargadorws.ocpp.messages.CancelReservationReq;
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq;
 import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq.AvailabilityType;
 import com.noder.cargadorws.ocpp.messages.DataTransferConf;
 import com.noder.cargadorws.ocpp.messages.DataTransferReq;
@@ -312,7 +313,8 @@ public class OcppHandler extends TextWebSocketHandler {
 
 	public void sendChangeAvailability(String chargerId, int connectorId, AvailabilityType type){
 		// TODO: Implement
-	
+		ChangeAvailabilityReq changeAvailabilityReq = new ChangeAvailabilityReq(connectorId, type);
+		
 	}
 
 	public void sendChangeConfiguration(String chargerId, String key, String value){

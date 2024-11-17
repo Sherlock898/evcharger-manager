@@ -38,4 +38,8 @@ public class Transaction {
     public Integer getTransactionId() {
         return transactionId;
     }
+
+    public TransactionStatus getTransactionStatus() {
+        return status;
+    }
 }

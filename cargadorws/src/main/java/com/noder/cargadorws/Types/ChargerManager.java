@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.noder.cargadorws.Types.Exceptions.ChargerNotFoundException;
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq.AvailabilityType;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
@@ -79,6 +80,14 @@ public class ChargerManager {
     public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
         chargers.get(chargerId).addMeterValues(connectorId, chargerId, meterValue);
     }
+
+    public void setAvailabilityType(String chargerId, Integer connectorId, AvailabilityType availabilityType) {
+        chargers.get(chargerId).setAvailabilityType(connectorId, availabilityType);
+    }
+
+    public AvailabilityType getAvailabilityType(String chargerId, Integer connecitrId) {
+        chargers.get(chargerId).getAvailabilityType(connecitrId);
+    }
     
     public void startMeterValueCleanupTask() {
         if (scheduler == null) {
@@ -145,5 +154,7 @@ public class ChargerManager {
         }
         charger.stopTransaction(transactionId, meterStop, timestamp);
     }
+
+    public 
 
 }
