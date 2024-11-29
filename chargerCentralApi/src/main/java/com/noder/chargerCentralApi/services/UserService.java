@@ -1,14 +1,24 @@
 package com.noder.chargerCentralApi.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.noder.chargerCentralApi.models.RegisteredUser;
+import com.noder.chargerCentralApi.repositories.UserRepository;
 
 @Service
 public class UserService {
     private final BCryptPasswordEncoder encoder;
+    @Autowired
+    private UserRepository userRepository;
 
     public UserService() {
         this.encoder = new BCryptPasswordEncoder();
+    }
+
+    public RegisteredUser saveUser(RegisteredUser user) {
+        return userRepository.save(user);
     }
 
     public String hashPin(String rawPin) {

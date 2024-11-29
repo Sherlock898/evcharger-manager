@@ -30,20 +30,28 @@ public class RegisteredUser {
     @Email
     private String email;
 
-    // TODO: regex para numeros de telefono
-     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
     private String phone;
 
     // TODO: averiguar como se almacenan los pins de forma segura
     private String pin;
-    
+
+    public String getPin() {
+        return pin;
+    }
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
     @Column(updatable = false)
     private Date created_at;
     private Date updated_at;
+
     @PrePersist
     protected void onCreate() {
         this.created_at = new Date();
     }
+    
     @PreUpdate
     protected void onUpdate() {
         this.updated_at = new Date();

@@ -85,9 +85,9 @@ public class ChargerManager {
         chargers.get(chargerId).setAvailabilityType(connectorId, availabilityType);
     }
 
-    public AvailabilityType getAvailabilityType(String chargerId, Integer connecitrId) {
+    /*public AvailabilityType getAvailabilityType(String chargerId, Integer connecitrId) {
         chargers.get(chargerId).getAvailabilityType(connecitrId);
-    }
+    }*/
     
     public void startMeterValueCleanupTask() {
         if (scheduler == null) {
@@ -154,7 +154,5 @@ public class ChargerManager {
         }
         charger.stopTransaction(transactionId, meterStop, timestamp);
     }
-
-    public 
 
 }
