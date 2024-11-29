@@ -6,7 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.web.socket.WebSocketSession;
+
 import com.noder.cargadorws.Types.Exceptions.ChargerNotFoundException;
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq.AvailabilityType;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
@@ -17,6 +20,7 @@ import com.noder.cargadorws.ocpp.messages.types.MeterValue;
 public class ChargerManager {
     public static final ChargerManager instance = new ChargerManager();
     public final Map<String, Charger> chargers = new ConcurrentHashMap<>();
+    public final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private ScheduledExecutorService scheduler;
     private static final long ONE_WEEK_IN_MILLIS = TimeUnit.DAYS.toMillis(7);
 
@@ -26,13 +30,40 @@ public class ChargerManager {
         return instance;
     }
 
-    public Charger addCharger(String id) {
+    // Adds charger session to dictionary with respective id
+    // Adds Charger instance object with its id if not present.
+    public Charger addCharger(String id, WebSocketSession session) {
+        sessions.put(id, session);
         return chargers.computeIfAbsent(id, key -> new Charger(id));
     }
-    public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
-        chargers.get(chargerId).addMeterValues(connectorId, chargerId, meterValue);
+
+    public WebSocketSession getSession(String chaString) {
+        return sessions.get(chaString);
+    }
+    // Remove Charger Session
+    public void removeChargerSession(String id){
+        sessions.remove(id);
     }
 
+    // Remove charger session and Instance
+    public void removeCharger(String id){
+        sessions.remove(id);
+        chargers.remove(id);
+    }
+    
+    public Charger getCharger(String id) throws ChargerNotFoundException {
+        Charger charger = chargers.get(id);
+        if (charger == null) {
+            throw new ChargerNotFoundException("Charger with id" + id + "not found.\n");
+        }
+        return charger;
+    }
+
+    public Map<String, Charger> getAllChargers() {
+        return chargers;
+    }
+
+    // Updates Charger with the information of BootNotification call
     public Charger loadBootNotificationInfo(String id, String model, String vendor, String boxSerialNumber, String chargePointSerialNumber,
                 String firmwareVersion, String iccid, String imsi, String meterSerialNumber, String meterType) throws ChargerNotFoundException{
         Charger charger;
@@ -44,19 +75,20 @@ public class ChargerManager {
         charger.loadBootNotificationInfo(model, vendor, boxSerialNumber, chargePointSerialNumber, firmwareVersion, iccid, imsi, meterSerialNumber, meterType);
         return charger;
     }
-
-    public Charger getCharger(String id) throws ChargerNotFoundException {
-        Charger charger = chargers.get(id);
-        if (charger == null) {
-            throw new ChargerNotFoundException("Charger with id" + id + "not found.\n");
-        }
-        return charger;
+    
+    // Adds a MeterValue reading to the charger
+    public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
+        chargers.get(chargerId).addMeterValues(connectorId, chargerId, meterValue);
     }
 
-    public void removeCharger(String id) {
-        chargers.remove(id);
+    public void setAvailabilityType(String chargerId, Integer connectorId, AvailabilityType availabilityType) {
+        chargers.get(chargerId).setAvailabilityType(connectorId, availabilityType);
     }
 
+    public AvailabilityType getAvailabilityType(String chargerId, Integer connecitrId) {
+        chargers.get(chargerId).getAvailabilityType(connecitrId);
+    }
+    
     public void startMeterValueCleanupTask() {
         if (scheduler == null) {
             scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
@@ -69,10 +101,6 @@ public class ChargerManager {
         for (Charger charger : chargers.values()) {
             charger.cleanMeterValues(oneWeekAgo);
         }
-    }
-
-    public Map<String, Charger> getAllChargers() {
-        return chargers;
     }
 
     // Method to update the diagnostic status of a charger
@@ -104,6 +132,7 @@ public class ChargerManager {
         charger.updateStatus(connectorId, status, errorCode);
     }
 
+    // Register start of a new transaction on charger and returns it's assigned id
     public Integer startTransaction(String chargerId, int connectorId, Integer meterStart, Instant startDate){
         Charger charger;
         try {
@@ -114,6 +143,7 @@ public class ChargerManager {
         return charger.startTransaction(connectorId, meterStart, startDate);
     }
 
+    // Register stop of an existing transaction
     public void stopTransaction(String chargerId, Integer transactionId, Integer meterStop, Instant timestamp) {
         Charger charger;
         try {
@@ -124,5 +154,7 @@ public class ChargerManager {
         }
         charger.stopTransaction(transactionId, meterStop, timestamp);
     }
+
+    public 
 
 }

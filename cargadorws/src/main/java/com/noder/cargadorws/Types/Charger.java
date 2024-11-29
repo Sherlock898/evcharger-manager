@@ -5,6 +5,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.noder.cargadorws.Types.Transaction.TransactionStatus;
+import com.noder.cargadorws.ocpp.messages.ChangeAvailabilityReq.AvailabilityType;
 import com.noder.cargadorws.ocpp.messages.DiagnosticsStatusNotificationReq.StatusDiagnostics;
 import com.noder.cargadorws.ocpp.messages.FirmwareStatusNotificationReq.StatusFirmware;
 import com.noder.cargadorws.ocpp.messages.StatusNotificationReq.ChargePointErrorCode;
@@ -17,6 +19,7 @@ public class Charger {
     private ChargePointErrorCode errorCode;
     private StatusDiagnostics statusDiagnostics;
     private StatusFirmware statusFirmware;
+    private AvailabilityType availabilityType;
     private ArrayList<Connector> connectors;
     private ArrayDeque<MeterValue> meterValues;
     private String model;
@@ -33,7 +36,7 @@ public class Charger {
     public String meterType;
 
     // Transactions
-    ArrayDeque<Transaction> transactions;
+    private ArrayDeque<Transaction> transactions;
 
     public Charger(String id){
         this.id = id;
@@ -63,6 +66,10 @@ public class Charger {
         connectors.add(connector);
     }
 
+    public String getId() {
+        return id;
+    }
+
     public void addMeterValues(Integer connectorId, String chargerId, MeterValue[] meterValue) {
         if(connectorId == 0) {
             for(int i = 0; i < meterValue.length; i++) {
@@ -86,10 +93,6 @@ public class Charger {
         }
     }
 
-    public String getId() {
-        return id;
-    }
-
     public void setDiagnosticsStatus(StatusDiagnostics statusDiagnostics) {
         this.statusDiagnostics = statusDiagnostics;
     }
@@ -106,10 +109,22 @@ public class Charger {
         return statusFirmware;
     }
 
-    public Integer startTransaction(int connectorId, Integer meterStart, Instant startDate){
-        Transaction transaction = new Transaction(connectorId, meterStart, startDate);
-        this.transactions.add(transaction);
-        return transaction.getTransactionId();
+    public void setAvailabilityType(Integer connectorId, AvailabilityType availabilityType) {
+        if(connectorId == 0) {
+            this.availabilityType = availabilityType;
+        }
+        else {
+            connectors.get(connectorId).setAvailabilityType(availabilityType);
+        }
+    }
+
+    public AvailabilityType getAvailabilityType(Integer connectorId) {
+        if(connectorId == 0) {
+            return availabilityType;
+        }
+        else {
+            return connectors.get(connectorId).getAvailabilityType();
+        }
     }
 
     public void updateStatus(int id, ChargePointStatus status, ChargePointErrorCode errorCode) {
@@ -127,6 +142,12 @@ public class Charger {
         connectors.get(id - 1).updateStatus(status, errorCode);
     }
 
+    public Integer startTransaction(int connectorId, Integer meterStart, Instant startDate){
+        Transaction transaction = new Transaction(connectorId, meterStart, startDate);
+        this.transactions.add(transaction);
+        return transaction.getTransactionId();
+    }
+
     public void stopTransaction(Integer transactionId, Integer meterStop, Instant timestamp) {
         // Start searching for the back of the queue
         Iterator<Transaction> iterator = transactions.descendingIterator();
@@ -137,5 +158,14 @@ public class Charger {
                 return;
             }
         }
+    }
+
+    public TransactionStatus getTransactionStatus(int id) {
+        for (Transaction transaction : transactions) {
+            if (transaction.getTransactionId() == id) {
+                return transaction.getTransactionStatus();
+            }
+        }
+        return null;
     }
 }
