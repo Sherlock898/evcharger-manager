@@ -7,15 +7,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 @Entity
-@Table(name = "RegisteredUser")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class RegisteredUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,7 @@ public class RegisteredUser {
     @NotNull
     @Pattern(regexp = "/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžæÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð,.'-]+$", message = "First name contains invalid characters.")
     private String firstName;
+    @NotNull
     @Pattern(regexp = "/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžæÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð,.'-]+$", message = "Last name contains invalid characters.")
     private String lastName;
     
@@ -33,7 +35,6 @@ public class RegisteredUser {
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
     private String phone;
 
-    // TODO: averiguar como se almacenan los pins de forma segura
     private String pin;
 
     public String getPin() {
