@@ -9,6 +9,6 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "ChargerClient")
 public class ChargerClient extends RegisteredUser {
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "chargingClient")
     private List<Card> cards;
 }

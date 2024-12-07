@@ -13,7 +13,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Transaction") 
+@Table(name = "Transaction")
 public class Transaction {
     public enum TransactionStatus {
         ACTIVE,
@@ -33,13 +33,71 @@ public class Transaction {
     @ManyToOne
     private Connector connector;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setStart_time(Instant start_time) {
+        this.start_time = start_time;
+    }
+
+    public void setEnd_time(Instant end_time) {
+        this.end_time = end_time;
+    }
+
+    public void setStart_meter_value(String start_meter_value) {
+        this.start_meter_value = start_meter_value;
+    }
+    
+    public void setEnd_meter_value(String end_meter_value) {
+        this.end_meter_value = end_meter_value;
+    }
+
+    public void setStatus(TransactionStatus status) {
+        this.status = status;
+    }
+
+    public void setConnector(Connector connector) {
+        this.connector = connector;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Instant getStart_time() {
+        return start_time;
+    }
+
+    public Instant getEnd_time() {
+        return end_time;
+    }
+
+    public String getStart_meter_value() {
+        return start_meter_value;
+    }
+    
+    public String getEnd_meter_value() {
+        return end_meter_value;
+    }
+
+    public TransactionStatus getStatus() {
+        return status;
+    }
+
+    public Connector getConnector() {
+        return connector;
+    }
+
     @Column(updatable = false)
     private Instant created_at;
     private Instant updated_at;
+
     @PrePersist
     protected void onCreate() {
         this.created_at = Instant.now();
     }
+
     @PreUpdate
     protected void onUpdate() {
         this.updated_at = Instant.now();

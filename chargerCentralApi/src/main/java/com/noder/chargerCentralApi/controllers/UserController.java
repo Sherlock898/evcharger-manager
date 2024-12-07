@@ -11,7 +11,7 @@ import com.noder.chargerCentralApi.models.RegisteredUser;
 import com.noder.chargerCentralApi.services.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
 
