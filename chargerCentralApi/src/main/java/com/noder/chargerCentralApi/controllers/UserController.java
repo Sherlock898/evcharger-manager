@@ -8,16 +8,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noder.chargerCentralApi.models.RegisteredUser;
 import com.noder.chargerCentralApi.services.UserService;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
     private final UserService userService;
 
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @PostMapping("/create")
-    public String createUser(@RequestBody RegisterUser user, @RequestParam String rawPin) {
+    public String createUser(@RequestBody RegisteredUser user, @RequestParam String rawPin) {
         String hashedPin = userService.hashPin(rawPin);
         user.setPin(hashedPin);
         userService.saveUser(user);
