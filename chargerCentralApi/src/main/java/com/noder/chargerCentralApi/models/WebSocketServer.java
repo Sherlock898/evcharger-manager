@@ -12,7 +12,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "WebsocketServer") 
+@Table(name = "WebsocketServer")
 public class WebSocketServer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
