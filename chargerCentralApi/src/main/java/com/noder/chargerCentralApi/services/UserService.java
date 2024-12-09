@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.noder.chargerCentralApi.models.RegisteredUser;
+import com.noder.chargerCentralApi.models.User;
 import com.noder.chargerCentralApi.repositories.UserRepository;
 
 @Service
@@ -17,7 +17,7 @@ public class UserService {
         this.encoder = new BCryptPasswordEncoder();
     }
 
-    public RegisteredUser saveUser(RegisteredUser user) {
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 

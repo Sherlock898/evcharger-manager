@@ -1,6 +1,6 @@
 package com.noder.chargerCentralApi.models;
 
-import java.util.Date;
+import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,14 +39,64 @@ public class Connector {
     private Charger charger;
 
     @Column(updatable = false)
-    private Date created_at;
-    private Date updated_at;
+    private Instant created_at;
+    private Instant updated_at;
+
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.created_at = Instant.now();
     }
+    
     @PreUpdate
     protected void onUpdate() {
-        this.updated_at = new Date();
+        this.updated_at = Instant.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getConnector_id() {
+        return connector_id;
+    }
+
+    public void setConnector_id(Long connector_id) {
+        this.connector_id = connector_id;
+    }
+
+    public ConnectorStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ConnectorStatus status) {
+        this.status = status;
+    }
+
+    public Charger getCharger() {
+        return charger;
+    }
+
+    public void setCharger(Charger charger) {
+        this.charger = charger;
+    }
+
+    public Instant getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Instant created_at) {
+        this.created_at = created_at;
+    }
+
+    public Instant getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(Instant updated_at) {
+        this.updated_at = updated_at;
     }
 }

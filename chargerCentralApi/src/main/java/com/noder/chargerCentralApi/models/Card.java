@@ -1,7 +1,8 @@
 package com.noder.chargerCentralApi.models;
 
-import java.util.Date;
+import java.time.Instant;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -46,18 +47,39 @@ public class Card {
     }
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
-    private ChargerClient chargingClient;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User chargingClient;
 
-    private Date created_at;
-    private Date updated_at;
+    @Column(updatable = false)
+    private Instant created_at;
+    private Instant updated_at;
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.created_at = Instant.now();
     }
     @PreUpdate
     protected void onUpdate() {
-        this.updated_at = new Date();
+        this.updated_at = Instant.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getChargingClient() {
+        return chargingClient;
+    }
+
+    public void setChargingClient(User chargingClient) {
+        this.chargingClient = chargingClient;
+    }
+
+    public Instant getCreatedAt() {
+        return created_at;
+    }
+
+    public Instant getUpdatedAt() {
+        return updated_at;
     }
 }

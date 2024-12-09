@@ -3,8 +3,8 @@ package com.noder.chargerCentralApi.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.noder.chargerCentralApi.models.RegisteredUser;
+import com.noder.chargerCentralApi.models.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<RegisteredUser, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 }

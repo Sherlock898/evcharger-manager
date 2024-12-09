@@ -1,6 +1,6 @@
 package com.noder.chargerCentralApi.models;
 
-import java.util.Date;
+import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,14 +19,40 @@ public class WebSocketServer {
     private Long id;
     
     @Column(updatable = false)
-    private Date created_at;
-    private Date updated_at;
+    private Instant created_at;
+    private Instant updated_at;
+
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.created_at = Instant.now();
     }
+
     @PreUpdate
     protected void onUpdate() {
-        this.updated_at = new Date();
+        this.updated_at = Instant.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Instant getCreatedAt() {
+        return created_at;
+    }
+
+    public void setCreatedAt(Instant created_at) {
+        this.created_at = created_at;
+    }
+
+    public Instant getUpdatedAt() {
+        return updated_at;
+    }
+
+    public void setUpdatedAt(Instant updated_at) {
+        this.updated_at = updated_at;
     }
 }

@@ -1,6 +1,6 @@
 package com.noder.chargerCentralApi.models;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -13,11 +13,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "Charger")
 public class Charger {
     public enum ChargerStatus {
         AVAILABLE,
@@ -43,18 +41,90 @@ public class Charger {
 
     @ManyToOne
     @JoinColumn(name = "administrator_id")
-    private ChargerAdministrator administrator;
+    private User administrator;
 
     @Column(updatable = false)
-    private Date created_at;
-    private Date updated_at;
+    private Instant created_at;
+    private Instant updated_at;
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.created_at = Instant.now();
     }
     @PreUpdate
     protected void onUpdate() {
-        this.updated_at = new Date();
+        this.updated_at = Instant.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Integer getConector_count() {
+        return conector_count;
+    }
+
+    public void setConector_count(Integer conector_count) {
+        this.conector_count = conector_count;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public ChargerStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ChargerStatus status) {
+        this.status = status;
+    }
+
+    public List<Connector> getConnectors() {
+        return connectors;
+    }
+
+    public void setConnectors(List<Connector> connectors) {
+        this.connectors = connectors;
+    }
+
+    public User getAdministrator() {
+        return administrator;
+    }
+
+    public void setAdministrator(User administrator) {
+        this.administrator = administrator;
+    }
+
+    public Instant getCreated_at() {
+        return created_at;
+    }
+
+    public Instant getUpdated_at() {
+        return updated_at;
     }
 }
