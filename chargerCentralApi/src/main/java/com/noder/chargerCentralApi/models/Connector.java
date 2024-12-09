@@ -7,14 +7,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "Conector") 
 public class Connector {
     public enum ConnectorStatus {
         AVAILABLE,
@@ -36,6 +35,7 @@ public class Connector {
     private ConnectorStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "charger_id", nullable = false)
     private Charger charger;
 
     @Column(updatable = false)
@@ -46,7 +46,7 @@ public class Connector {
     protected void onCreate() {
         this.created_at = Instant.now();
     }
-    
+
     @PreUpdate
     protected void onUpdate() {
         this.updated_at = Instant.now();

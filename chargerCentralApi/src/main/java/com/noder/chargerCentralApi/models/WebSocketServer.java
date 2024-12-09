@@ -1,22 +1,29 @@
 package com.noder.chargerCentralApi.models;
 
 import java.time.Instant;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "WebsocketServer")
 public class WebSocketServer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    private String url;
+
+    @OneToMany(mappedBy = "webSocketServer")
+    private List<Charger> chargers;
     
     @Column(updatable = false)
     private Instant created_at;
@@ -42,6 +49,14 @@ public class WebSocketServer {
 
     public Instant getCreatedAt() {
         return created_at;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public void setCreatedAt(Instant created_at) {

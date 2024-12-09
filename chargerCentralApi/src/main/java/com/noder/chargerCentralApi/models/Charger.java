@@ -40,8 +40,12 @@ public class Charger {
     private List<Connector> connectors;
 
     @ManyToOne
-    @JoinColumn(name = "administrator_id")
+    @JoinColumn(name = "administrator_id", nullable = false)
     private User administrator;
+
+    @ManyToOne
+    @JoinColumn(name = "web_socket_server_id", nullable = false)
+    private WebSocketServer webSocketServer;
 
     @Column(updatable = false)
     private Instant created_at;
@@ -110,6 +114,14 @@ public class Charger {
 
     public void setConnectors(List<Connector> connectors) {
         this.connectors = connectors;
+    }
+
+    public WebSocketServer getWebSocketServer() {
+        return webSocketServer;
+    }
+
+    public void setWebSocketServer(WebSocketServer webSocketServer) {
+        this.webSocketServer = webSocketServer;
     }
 
     public User getAdministrator() {
