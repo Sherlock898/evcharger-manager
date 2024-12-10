@@ -121,6 +121,14 @@ public class User {
         this.pin = pin;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
     public List<Card> getCards() {
         return cards;
     }
