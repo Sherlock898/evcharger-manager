@@ -42,9 +42,9 @@ public class User {
     // TODO: Do passwords for admins
     private String pin;
 
-    @ManyToMany 
-    @JoinTable( 
-        name = "users_roles", 
+    @ManyToMany
+    @JoinTable(
+        name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), 
         inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")) 
     private List<Role> roles;

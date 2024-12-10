@@ -7,8 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noder.chargerCentralApi.dtos.UserCreationDTO;
+import com.noder.chargerCentralApi.dtos.UserDTO;
 import com.noder.chargerCentralApi.models.User;
 import com.noder.chargerCentralApi.services.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -20,11 +24,9 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String createUser(@RequestBody User user, @RequestParam String rawPin) {
-        String hashedPin = userService.hashPin(rawPin);
-        user.setPin(hashedPin);
-        userService.saveUser(user);
-        return "User created successfully";
+    public UserDTO createUser(@RequestBody @Valid UserCreationDTO userCreationDTO) {
+        User user = userService.saveUser(userCreationDTO);
+        return userService.toUserDTO(user);
     }
 
     @PostMapping("/validate-pin")
