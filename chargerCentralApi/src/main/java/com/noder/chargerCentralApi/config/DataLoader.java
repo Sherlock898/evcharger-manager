@@ -1,13 +1,12 @@
 package com.noder.chargerCentralApi.config;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
 import com.noder.chargerCentralApi.models.Privilege;
 import com.noder.chargerCentralApi.models.Role;
-import com.noder.chargerCentralApi.models.User;
+import com.noder.chargerCentralApi.models.UserEntity;
 import com.noder.chargerCentralApi.repositories.PrivilegeRepository;
 import com.noder.chargerCentralApi.repositories.RoleRepostiory;
 import com.noder.chargerCentralApi.repositories.UserRepository;
@@ -70,7 +69,7 @@ public class DataLoader {
         Role roleSysAdmin = createRoleIfNotFound("ROLE_SYS_ADMIN", systemAdminPrivileges);
     
         // Create test system admin
-        User sysAdminUser = new User();
+        UserEntity sysAdminUser = new UserEntity();
         sysAdminUser.setFirstName("System");
         sysAdminUser.setLastName("Admin");
         sysAdminUser.setEmail("admin@admin");

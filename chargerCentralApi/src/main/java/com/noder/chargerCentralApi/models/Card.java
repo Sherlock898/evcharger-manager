@@ -48,7 +48,7 @@ public class Card {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User chargingClient;
+    private UserEntity chargingClient;
 
     @Column(updatable = false)
     private Instant created_at;
@@ -67,11 +67,11 @@ public class Card {
         return id;
     }
 
-    public User getChargingClient() {
+    public UserEntity getChargingClient() {
         return chargingClient;
     }
 
-    public void setChargingClient(User chargingClient) {
+    public void setChargingClient(UserEntity chargingClient) {
         this.chargingClient = chargingClient;
     }
 

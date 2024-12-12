@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.noder.chargerCentralApi.models.User;
+import com.noder.chargerCentralApi.models.UserEntity;
 import com.noder.chargerCentralApi.services.UserService;
 
 @RestController
@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String createUser(@RequestBody User user, @RequestParam String rawPin) {
+    public String createUser(@RequestBody UserEntity user, @RequestParam String rawPin) {
         String hashedPin = userService.hashPin(rawPin);
         user.setPin(hashedPin);
         userService.saveUser(user);

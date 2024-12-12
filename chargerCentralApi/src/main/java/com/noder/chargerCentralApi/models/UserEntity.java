@@ -21,7 +21,7 @@ import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "\"user\"") // user is a reserved keyword in Postgres
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

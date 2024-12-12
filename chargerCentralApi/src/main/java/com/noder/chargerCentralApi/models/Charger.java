@@ -41,7 +41,7 @@ public class Charger {
 
     @ManyToOne
     @JoinColumn(name = "administrator_id", nullable = false)
-    private User administrator;
+    private UserEntity administrator;
 
     @ManyToOne
     @JoinColumn(name = "web_socket_server_id", nullable = false)
@@ -124,11 +124,11 @@ public class Charger {
         this.webSocketServer = webSocketServer;
     }
 
-    public User getAdministrator() {
+    public UserEntity getAdministrator() {
         return administrator;
     }
 
-    public void setAdministrator(User administrator) {
+    public void setAdministrator(UserEntity administrator) {
         this.administrator = administrator;
     }
 
