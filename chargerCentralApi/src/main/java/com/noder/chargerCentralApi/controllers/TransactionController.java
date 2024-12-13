@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noder.chargerCentralApi.dtos.TransactionCreateDTO;
+import com.noder.chargerCentralApi.dtos.TransactionResponseDTO;
+import com.noder.chargerCentralApi.dtos.TransactionStatusUpdateDTO;
 import com.noder.chargerCentralApi.models.Transaction;
 import com.noder.chargerCentralApi.models.Transaction.TransactionStatus;
 import com.noder.chargerCentralApi.services.TransactionService;
@@ -32,40 +34,81 @@ public class TransactionController {
     @GetMapping
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> transactions = transactionService.getAllTransactions();
+        List<TransactionResponseDTO> transactionResponseDTOs = transactions.stream().map(transaction -> new TransactionResponseDTO(
+            transaction.getId(),
+            transaction.getStart_time(),
+            transaction.getEnd_time(),
+            transaction.getStart_meter_value(),
+            transaction.getEnd_meter_value(),
+            transaction.getStatus().name()
+        )).toList();
         return ResponseEntity.ok(transactions);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
+    public ResponseEntity<TransactionResponseDTO> getTransactionById(@PathVariable Long id) {
         Optional<Transaction> transaction = transactionService.getTransactionById(id);
-        return transaction.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return transaction.map(t -> ResponseEntity.ok(new TransactionResponseDTO(
+            t.getId(),
+            t.getStart_time(),
+            t.getEnd_time(),
+            t.getStart_meter_value(),
+            t.getEnd_meter_value(),
+            t.getStatus().name()
+        ))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction) {
+    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody TransactionCreateDTO transactionCreateDTO) {
+        Transaction transaction = new Transaction();
+        transaction.setConnector(transactionCreateDTO.getConnector());
+        transaction.setStart_time(transactionCreateDTO.getStart_time());
+        transaction.setStart_meter_value(transactionCreateDTO.getStart_meter_value());
+
         Transaction createdTransaction = transactionService.createTransaction(transaction);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdTransaction);
+        TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO(
+            createdTransaction.getId(),
+            createdTransaction.getStart_time(),
+            createdTransaction.getEnd_time(),
+            createdTransaction.getStart_meter_value(),
+            createdTransaction.getEnd_meter_value(),
+            createdTransaction.getStatus().name());
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @RequestBody Transaction transactionDetails) {
-        Optional<Transaction> updatedTransaction = transactionService.updateTransaction(id, transactionDetails);
-        return updatedTransaction.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TransactionResponseDTO> updateTransaction(@PathVariable Long id, @RequestBody TransactionCreateDTO transactionCreateDTO) {
+        Optional<Transaction> updatedTransaction = transactionService.updateTransaction(id, transactionCreateDTO);
+        return updatedTransaction.map(t -> ResponseEntity.ok(new TransactionResponseDTO(
+            t.getId(),
+            t.getStart_time(),
+            t.getEnd_time(),
+            t.getStart_meter_value(),
+            t.getEnd_meter_value(),
+            t.getStatus().name()
+        ))).orElse(ResponseEntity.notFound().build());
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+    public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
         boolean deleted = transactionService.deleteTransaction(id);
         if (deleted) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Transaction deleted successfully");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Transaction not found");
         }
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Transaction> updateTransactionStatus(@PathVariable Long id, @RequestParam TransactionStatus status) {
-        Optional<Transaction> updatedTransaction = transactionService.updateTransactionStatus(id, status);
-        return updatedTransaction.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TransactionResponseDTO> updateTransactionStatus(@PathVariable Long id, @RequestBody TransactionStatusUpdateDTO transactionStatusUpdateDTO) {
+        Optional<Transaction> updatedTransaction = transactionService.updateTransactionStatus(id, TransactionStatus.valueOf(transactionStatusUpdateDTO.getStatus()));
+        return updatedTransaction.map(t -> ResponseEntity.ok(new TransactionResponseDTO(
+            t.getId(),
+            t.getStart_time(),
+            t.getEnd_time(),
+            t.getStart_meter_value(),
+            t.getEnd_meter_value(),
+            t.getStatus().name()
+        ))).orElse(ResponseEntity.notFound().build());
     }
 }

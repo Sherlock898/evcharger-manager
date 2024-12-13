@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.noder.chargerCentralApi.dtos.TransactionCreateDTO;
 import com.noder.chargerCentralApi.models.Transaction;
 import com.noder.chargerCentralApi.models.Transaction.TransactionStatus;
 import com.noder.chargerCentralApi.repositories.TransactionRepository;
@@ -29,14 +30,11 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public Optional<Transaction> updateTransaction(Long id, Transaction transactionDetails) {
+    public Optional<Transaction> updateTransaction(Long id, TransactionCreateDTO transactionCreateDTO) {
         return transactionRepository.findById(id).map(existingTransaction -> {
-            existingTransaction.setStart_time(transactionDetails.getStart_time());
-            existingTransaction.setEnd_time(transactionDetails.getEnd_time());
-            existingTransaction.setStart_meter_value(transactionDetails.getStart_meter_value());
-            existingTransaction.setEnd_meter_value(transactionDetails.getEnd_meter_value());
-            existingTransaction.setStatus(transactionDetails.getStatus());
-            existingTransaction.setConnector(transactionDetails.getConnector());
+            existingTransaction.setStart_time(transactionCreateDTO.getStart_time());
+            existingTransaction.setStart_meter_value(transactionCreateDTO.getStart_meter_value());
+            existingTransaction.setConnector(transactionCreateDTO.getConnector());
             return transactionRepository.save(existingTransaction);
         });
     }
