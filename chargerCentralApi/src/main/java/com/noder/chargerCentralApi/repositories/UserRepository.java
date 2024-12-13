@@ -10,4 +10,5 @@ import com.noder.chargerCentralApi.models.UserEntity;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String username);
+    boolean existsByEmail(String email);
 }

@@ -16,6 +16,7 @@ public class WebSocketController {
     public RestTemplate getRestTemplate() {
         return restTemplate;
     }
+    
     @MessageMapping("/sendMessage")
     public void handleMessage(String message) {
         String apiUrl = "http://localhost:8080/api/transactions";
