@@ -14,8 +14,8 @@ import io.jsonwebtoken.security.Keys;
 
 @Configuration
 public class JwtGenerator {
-    // TODO: move this to secure location and change "secret" to an actual key
-    private static final SecretKey key = Keys.hmacShaKeyFor("secret".getBytes());
+    // FIXME: move this to secure location and change "secret" to an actual key
+    private static final SecretKey key = Keys.hmacShaKeyFor("secretsecretsecretsecretsecretsecret".getBytes());
 
     public String generate(Authentication authentication) {
         String username = authentication.getName();
@@ -42,9 +42,10 @@ public class JwtGenerator {
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+            System.out.println("Token validated");
             return true;
         } catch (Exception e) {
-            throw new AuthenticationCredentialsNotFoundException("Invalid token");
+            throw new AuthenticationCredentialsNotFoundException(e.getMessage());
         }
     }
 }

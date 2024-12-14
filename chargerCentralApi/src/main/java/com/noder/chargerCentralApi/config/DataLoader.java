@@ -1,7 +1,9 @@
 package com.noder.chargerCentralApi.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.noder.chargerCentralApi.models.Privilege;
@@ -10,6 +12,7 @@ import com.noder.chargerCentralApi.models.UserEntity;
 import com.noder.chargerCentralApi.repositories.PrivilegeRepository;
 import com.noder.chargerCentralApi.repositories.RoleRepostiory;
 import com.noder.chargerCentralApi.repositories.UserRepository;
+import com.noder.chargerCentralApi.services.EncryptionService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -19,6 +22,7 @@ public class DataLoader {
     private final UserRepository userRepository;
     private final RoleRepostiory roleRepostiory;
     private final PrivilegeRepository privilegeRepository;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public DataLoader(UserRepository userRepository, RoleRepostiory roleRepostiory, PrivilegeRepository privilegeRepository) {
         this.userRepository = userRepository;
@@ -58,8 +62,9 @@ public class DataLoader {
 
         List<Privilege> userPrivileges = List.of(readOwnTransactions, readOwnAccountInfo, updateOwnAccountInfo, readChargerInfo, reserveCharger);
         List<Privilege> subAdminPrivileges = List.of(readOwnTransactionsAdmin, manageCharger);
-        List<Privilege> adminPrivileges = List.of(changeElectricityPrice, createSubordinatedSubAdmin, deleteSubordinatedSubAdmin, updateSubordinatedSubAdmin, registerOwnCharger, deleteOwnCharger);
-        for (Privilege privilege : subAdminPrivileges) adminPrivileges.add(privilege);
+        List<Privilege> adminPrivileges = new ArrayList<>();
+        adminPrivileges.addAll(List.of(changeElectricityPrice, createSubordinatedSubAdmin, deleteSubordinatedSubAdmin, updateSubordinatedSubAdmin, registerOwnCharger, deleteOwnCharger));
+        adminPrivileges.addAll(subAdminPrivileges);
         List<Privilege> systemAdminPrivileges = List.of(readAllTransactions, readAllChargers, createAllAccounts, deleteAllAccounts, updateAllAccounts, readAllAccounts);
     
         createRoleIfNotFound("ROLE_USER", userPrivileges);
@@ -68,15 +73,7 @@ public class DataLoader {
 
         Role roleSysAdmin = createRoleIfNotFound("ROLE_SYS_ADMIN", systemAdminPrivileges);
     
-        // Create test system admin
-        UserEntity sysAdminUser = new UserEntity();
-        sysAdminUser.setFirstName("System");
-        sysAdminUser.setLastName("Admin");
-        sysAdminUser.setEmail("admin@admin");
-        sysAdminUser.setPin("1111");
-        sysAdminUser.setRoles(List.of(roleSysAdmin));
-        userRepository.save(sysAdminUser);
-
+        createSysAdminIfNotFound(List.of(roleSysAdmin));
     }
 
     @Transactional
@@ -100,6 +97,23 @@ public class DataLoader {
             roleRepostiory.save(role);
         }
         return role;
+    }
+
+    @Transactional
+    UserEntity createSysAdminIfNotFound(List<Role> roles) {
+        UserEntity sysAdminUser = userRepository.findByEmail("admin@admin").orElse(null);
+        if (sysAdminUser == null) {
+            sysAdminUser = new UserEntity();
+            sysAdminUser.setFirstName("System");
+            sysAdminUser.setLastName("Admin");
+            sysAdminUser.setEmail("admin@admin");
+            sysAdminUser.setPin(encoder.encode("1111"));
+            sysAdminUser.setPhone("12345678");
+            sysAdminUser.setRoles(roles);
+            System.out.println("Encoded password: " + sysAdminUser.getPin());
+            userRepository.save(sysAdminUser);
+        }
+        return sysAdminUser;
     }
 }
 

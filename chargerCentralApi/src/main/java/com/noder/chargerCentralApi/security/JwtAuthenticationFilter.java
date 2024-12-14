@@ -24,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        System.out.println("Filtering request");
         String token = getTokenFromHeader(request.getHeader("Authorization"));
         if (token != null && jwtGenerator.validateToken(token)) {
             String username = jwtGenerator.getUserName(token);
@@ -33,10 +34,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetails, null, userDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            filterChain.doFilter(request, response);
-        } else {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-        }
+            System.out.println("Authentication set to: " + username);
+        } 
+        filterChain.doFilter(request, response);  
     }
 
     private String getTokenFromHeader(String header) {

@@ -1,10 +1,13 @@
 package com.noder.chargerCentralApi.controllers;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +22,7 @@ import com.noder.chargerCentralApi.services.UserService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -37,17 +41,20 @@ public class AuthController {
         this.jwtGenerator = jwtGenerator;
     }
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody UserLoginDTO userLoginDTO) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(userLoginDTO.getEmail(), userLoginDTO.getPin())
         );
+        System.out.println("Authentication: " + authentication);
+        System.out.println("Principal: " + authentication.getPrincipal());
+        System.out.println("Authorities: " + authentication.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generate(authentication);
         return ResponseEntity.ok(new AuthResponseDTO(token));
     }
 
-    @PostMapping("register")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody UserCreationDTO userCreationDTO) {
         if (userService.existsByEmail(userCreationDTO.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
@@ -57,4 +64,9 @@ public class AuthController {
         return ResponseEntity.ok("User created successfully");
     }
 
+    @GetMapping("/test_auth")
+    public ResponseEntity<String> test() {
+        System.out.println("Test auth");
+        return ResponseEntity.ok("test");
+    }
 }
