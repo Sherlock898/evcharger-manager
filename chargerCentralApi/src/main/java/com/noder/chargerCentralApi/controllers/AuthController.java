@@ -8,11 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noder.chargerCentralApi.dtos.AuthResponseDTO;
 import com.noder.chargerCentralApi.dtos.UserCreationDTO;
 import com.noder.chargerCentralApi.dtos.UserLoginDTO;
 import com.noder.chargerCentralApi.models.UserEntity;
 import com.noder.chargerCentralApi.repositories.RoleRepostiory;
 import com.noder.chargerCentralApi.repositories.UserRepository;
+import com.noder.chargerCentralApi.security.JwtGenerator;
 import com.noder.chargerCentralApi.services.UserService;
 
 import jakarta.validation.Valid;
@@ -27,19 +29,22 @@ public class AuthController {
 
     private AuthenticationManager authenticationManager;
     private UserService userService;
+    private JwtGenerator jwtGenerator;
 
-    public AuthController(AuthenticationManager authenticationManager, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtGenerator jwtGenerator) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.jwtGenerator = jwtGenerator;
     }
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody UserLoginDTO userLoginDTO) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(userLoginDTO.getEmail(), userLoginDTO.getPin())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok("Login successful");
+        String token = jwtGenerator.generate(authentication);
+        return ResponseEntity.ok(new AuthResponseDTO(token));
     }
 
     @PostMapping("register")
