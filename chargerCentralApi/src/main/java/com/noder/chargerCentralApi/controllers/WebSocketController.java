@@ -1,9 +1,13 @@
 package com.noder.chargerCentralApi.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 public class WebSocketController {
@@ -18,12 +22,23 @@ public class WebSocketController {
     }
     
     @MessageMapping("/sendMessage")
-    public void handleMessage(String message) {
+    @SendTo("/topic/response")
+    public String handleMessage(String message) {
         String apiUrl = "http://localhost:8080/api/transactions";
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(apiUrl).queryParam("message", message);
 
-        // Make the HTTP request
-        String response = restTemplate.postForObject(uriBuilder.toUriString(), null, String.class);
-        System.out.println("API response: " + response);
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("message", message);
+
+        try {
+            String response = restTemplate.postForObject(apiUrl, requestBody, String.class);
+            System.out.println("API response: " + response);
+            return response;
+        } catch (HttpClientErrorException e) {
+            System.err.println("Error while sending message to API: " + e.getMessage());
+            return "Error: Unable to process the request.";
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            return "Error: Unexpected server issue.";
+        }
     }
 }
