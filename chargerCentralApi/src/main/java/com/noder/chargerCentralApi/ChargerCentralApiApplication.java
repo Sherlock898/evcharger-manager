@@ -9,5 +9,4 @@ public class ChargerCentralApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ChargerCentralApiApplication.class, args);
 	}
-
 }

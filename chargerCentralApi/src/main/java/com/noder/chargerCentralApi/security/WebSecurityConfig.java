@@ -33,6 +33,10 @@ public class WebSecurityConfig {
             .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/chargers/control/**").hasAnyRole("ADMIN", "SUB_ADMIN")
+                .requestMatchers("/api/chargers/history/**").hasAnyRole("ADMIN", "SUB_ADMIN")
+                .requestMatchers("/api/chargers/nearby").hasRole("USER")
                 .requestMatchers("/api/v1/auth/test_auth").authenticated()
                 .anyRequest().authenticated()
             )
