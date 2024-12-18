@@ -55,7 +55,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsFromUserId(Long userId) {
-        return transactionRepository.findByUserId(userId);
+        return transactionRepository.findByConnectorChargerAdministrator_id(userId);
 
     }
 }

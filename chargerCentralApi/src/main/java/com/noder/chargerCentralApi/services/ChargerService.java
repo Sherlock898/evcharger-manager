@@ -25,7 +25,7 @@ public class ChargerService {
     }
     
     public List<Charger> getChargersFromUser(Long userId) {
-        return chargeRepository.findByUserId(userId);
+        return chargeRepository.findByAdministrator_id(userId);
     }
 
     public boolean isRegistered(Long chargerId) {

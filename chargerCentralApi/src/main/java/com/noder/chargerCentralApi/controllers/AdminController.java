@@ -58,6 +58,7 @@ public class AdminController {
         return chargerService.getCharger(chargerId).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());      
     }
     
+    // TODO: Use transactions DTO
     // Get all transactions
     @GetMapping("/transactions")
     public ResponseEntity<List<Transaction>> getTransactions() {

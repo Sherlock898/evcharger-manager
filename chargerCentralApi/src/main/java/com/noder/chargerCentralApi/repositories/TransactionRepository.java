@@ -11,6 +11,6 @@ import com.noder.chargerCentralApi.models.Transaction;
 public interface TransactionRepository extends JpaRepository<Transaction, Long>{
     // Fin all transactions linked to a userId
     // TODO: Test this, idk if this works
-    List<Transaction> findByUserId(Long userId);
+    List<Transaction> findByConnectorChargerAdministrator_id(Long userId);
     
 }

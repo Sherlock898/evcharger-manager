@@ -9,6 +9,6 @@ import com.noder.chargerCentralApi.models.Charger;
 
 @Repository
 public interface ChargerRepository extends JpaRepository<Charger, Long> {
-    List<Charger> findByUserId(Long userId);
+    List<Charger> findByAdministrator_id(Long userId);
     
 }

@@ -22,8 +22,10 @@ import com.noder.chargerCentralApi.models.Transaction;
 import com.noder.chargerCentralApi.models.Transaction.TransactionStatus;
 import com.noder.chargerCentralApi.services.TransactionService;
 
+// TODO: Delete this class
+@Deprecated
 @RestController
-@RequestMapping("/api/v1/transactions")
+@RequestMapping("/deprecated/api/v1/transactions")
 public class TransactionController {
     private final TransactionService transactionService;
 
