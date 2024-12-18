@@ -7,7 +7,6 @@ function RegistroTarjeta() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para procesar el registro de la tarjeta
     console.log("Tarjeta registrada:", { cardNumber, expiryDate, cvv });
   };
 

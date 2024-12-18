@@ -1,7 +1,6 @@
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import React from 'react';
 
-// Componente para mostrar el mapa con la ubicación de la Universidad de Concepción
 function MapPage() {
   const mapContainerStyle = {
     width: '100%',
@@ -9,13 +8,12 @@ function MapPage() {
   };
 
   const center = {
-    lat: -36.8317, // Latitud de la Universidad de Concepción
-    lng: -73.0507, // Longitud de la Universidad de Concepción
+    lat: -36.8317,
+    lng: -73.0507,
   };
 
   const markers = [
-    { lat: -36.8317, lng: -73.0507 }, // Coordenadas de la Universidad de Concepción
-    // Puedes agregar más coordenadas de otros cargadores aquí
+    { lat: -36.8317, lng: -73.0507 },
   ];
 
   return (
@@ -24,7 +22,7 @@ function MapPage() {
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={center}
-        zoom={15} // Zoom adecuado para ver la universidad
+        zoom={15}
       >
         {markers.map((marker, index) => (
           <Marker key={index} position={marker} />

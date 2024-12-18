@@ -8,7 +8,6 @@ function Registro() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar los datos del formulario al servidor
     console.log("Usuario registrado:", { name, email, password, role });
   };
 

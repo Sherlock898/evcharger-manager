@@ -2,14 +2,14 @@ import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import React, { useState } from 'react';
 import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
+import NearbyChargers from './components/NearbyChargers';
 
-// Componente para el formulario de inicio de sesión
 function Login({ onLogin }) {
-  const [role, setRole] = useState('user'); // Estado para almacenar el rol del usuario (admin o user)
+  const [role, setRole] = useState('user');
 
   const handleLogin = (event) => {
     event.preventDefault();
-    onLogin(role); // Llamamos la función onLogin para pasar el rol seleccionado
+    onLogin(role);
   };
 
   return (
@@ -29,7 +29,6 @@ function Login({ onLogin }) {
   );
 }
 
-// Componente para mostrar el mapa con cargadores
 function MapPage() {
   const mapContainerStyle = {
     width: '100%',
@@ -37,14 +36,14 @@ function MapPage() {
   };
 
   const center = {
-    lat: 40.730610, // Coordenada central (puedes ajustarla según la ubicación del usuario)
+    lat: 40.730610,
     lng: -73.935242,
   };
 
   const markers = [
     { lat: 40.730610, lng: -73.935242 },
     { lat: 40.740610, lng: -73.925242 },
-    // Agrega más cargadores aquí
+    //TODO Agrega más cargadores aquí
   ];
 
   return (
@@ -62,7 +61,6 @@ function MapPage() {
   );
 }
 
-// Componente para registrar tarjetas
 function PaymentCards() {
   const [cards, setCards] = useState([]);
   const [cardNumber, setCardNumber] = useState('');
@@ -92,12 +90,11 @@ function PaymentCards() {
   );
 }
 
-// Componente principal
 function App() {
   const [role, setRole] = useState(null);
 
   const handleLogin = (userRole) => {
-    setRole(userRole); // Guardamos el rol después de que el usuario se haya logueado
+    setRole(userRole);
   };
 
   return (
@@ -105,23 +102,27 @@ function App() {
       <div className="App">
         <h1>EV Charger Manager</h1>
         {!role ? (
-          <Login onLogin={handleLogin} /> // Si no hay rol, mostramos el formulario de inicio de sesión
+          <Login onLogin={handleLogin} />
         ) : (
           <div>
             <h2>Bienvenido {role === 'admin' ? 'Administrador' : 'Usuario Común'}</h2>
             <nav>
               <ul>
                 <li>
-                  <Link to="/map">Ver Cargadores</Link>
+                  <Link to="/map">Ver Cargadores en el Mapa</Link>
                 </li>
                 <li>
                   <Link to="/payment">Registrar Tarjeta</Link>
+                </li>
+                <li>
+                  <Link to="/nearby">Cargadores Cercanos</Link> {}
                 </li>
               </ul>
             </nav>
             <Routes>
               <Route path="/map" element={<MapPage />} />
               <Route path="/payment" element={<PaymentCards />} />
+              <Route path="/nearby" element={<NearbyChargers />} /> {}
             </Routes>
           </div>
         )}
