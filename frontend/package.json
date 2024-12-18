@@ -1,0 +1,28 @@
+{
+    "name": "frontend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@react-google-maps/api": "^2.20.3",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "react-router-dom": "^7.0.2",
+        "react-scripts": "5.0.1"
+    },
+    "browserslist": [
+        "last 2 versions",
+        "not dead",
+        "> 0.2%"
+    ]
+}
+
