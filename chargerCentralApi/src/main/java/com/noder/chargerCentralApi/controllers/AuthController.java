@@ -53,7 +53,7 @@ public class AuthController {
         String token = jwtGenerator.generate(authentication);
         return ResponseEntity.ok(new AuthResponseDTO(token));
     }
-
+    
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody UserCreationDTO userCreationDTO) {
         if (userService.existsByEmail(userCreationDTO.getEmail())) {

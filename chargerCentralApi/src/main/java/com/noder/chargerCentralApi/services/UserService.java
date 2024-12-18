@@ -1,7 +1,11 @@
 package com.noder.chargerCentralApi.services;
 
 import java.util.Collections;
+import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -56,11 +60,44 @@ public class UserService {
         return encoder.matches(rawPin, hashedPin);
     }
 
+    public Optional<Long> getUserIdFromAuthentication(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = null;
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            currentUserName = ((UserDetails) authentication.getPrincipal()).getUsername();
+        } else if (authentication != null) {
+            currentUserName = authentication.getPrincipal().toString();
+        }
+        if (currentUserName == null) {
+            return Optional.empty();
+        }
+        return userRepository.findByEmail(currentUserName).map(UserEntity::getId);
+    }
+
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public UserEntity findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+    public Optional<UserEntity> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<UserEntity> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    public Optional<UserEntity> getUserFromAuthentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = null;
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            currentUserName = ((UserDetails) authentication.getPrincipal()).getUsername();
+        } else if (authentication != null) {
+            currentUserName = authentication.getPrincipal().toString();
+        }
+        if (currentUserName == null) {
+            return Optional.empty();
+        }
+        return userRepository.findByEmail(currentUserName);
+        
     }
 }

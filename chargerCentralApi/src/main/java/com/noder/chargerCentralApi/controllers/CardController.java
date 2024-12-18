@@ -40,7 +40,10 @@ public class CardController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Card> getCardById(@PathVariable Long id) {
-        Card card = cardService.getCardById(id);
+        Card card = cardService.getCardById(id).orElse(null);
+        if (card == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(card);
     }
 

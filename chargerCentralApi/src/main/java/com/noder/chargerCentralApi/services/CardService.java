@@ -1,6 +1,7 @@
 package com.noder.chargerCentralApi.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,12 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    public Card getCardById(Long id) {
-        return cardRepository.findById(id).orElseThrow(() -> new RuntimeException("Card not found"));
+    public Optional<Card> getCardById(Long id) {
+        return Optional.of(cardRepository.findById(id).orElseThrow(() -> new RuntimeException("Card not found")));
     }
 
-    public Card updateCard(Long id, Card updatedCard) {
-        Card existingCard = getCardById(id);
+    public Card updateCard(Long id, Card updatedCard) throws RuntimeException {
+        Card existingCard = cardRepository.findById(id).orElseThrow(() -> new RuntimeException("Card not found"));
         existingCard.setEncryptedCardNumber(updatedCard.getEncryptedCardNumber());
         existingCard.setCardHolderName(updatedCard.getCardHolderName());
         existingCard.setLast4Digits(updatedCard.getLast4Digits());
