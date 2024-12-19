@@ -1,21 +1,23 @@
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import React, { useState } from 'react';
-import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Link, Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import NearbyChargers from './components/NearbyChargers';
 
-function Login({ onLogin }) {
+function SelectRole({ onSelectRole }) {
   const [role, setRole] = useState('user');
+  const navigate = useNavigate();
 
-  const handleLogin = (event) => {
+  const handleSelectRole = (event) => {
     event.preventDefault();
-    onLogin(role);
+    onSelectRole(role);
+    navigate('/auth');
   };
 
   return (
     <div>
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleLogin}>
+      <h2>Selecciona tu Rol</h2>
+      <form onSubmit={handleSelectRole}>
         <label>
           Selecciona tu rol:
           <select value={role} onChange={(e) => setRole(e.target.value)}>
@@ -23,20 +25,31 @@ function Login({ onLogin }) {
             <option value="admin">Administrador</option>
           </select>
         </label>
-        <button type="submit">Iniciar Sesión</button>
+        <button type="submit">Seleccionar Rol</button>
       </form>
     </div>
   );
 }
 
-function Register({ onRegister }) {
+function Auth({ onRegister, onLogin, role }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
 
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+
+  const clearFields = () => {
+    setEmail('');
+    setPassword('');
+    setFirstName('');
+    setLastName('');
+    setPhone('');
+  };
+
+  const handleRegister = (event) => {
     event.preventDefault();
 
     const userData = {
@@ -45,29 +58,54 @@ function Register({ onRegister }) {
       email,
       phone,
       password,
-      roles: ['ROLE_USER'],
+      roles: [role === 'admin' ? 'ROLE_ADMIN' : 'ROLE_USER'],
     };
 
-    console.log(userData);
     onRegister(userData);
+    clearFields();
+    navigate('/map');
+  };
+
+  const handleLogin = (event) => {
+    event.preventDefault();
+
+    const userData = { email, password };
+    const isLoggedIn = onLogin(userData);
+
+    if (isLoggedIn) {
+      clearFields();
+      navigate('/map');
+    } else {
+      alert('Credenciales incorrectas');
+    }
   };
 
   return (
     <div>
-      <h2>Registrar Usuario</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Apellido"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
+      <h2>{isLogin ? 'Iniciar sesión' : 'Registrar Usuario'}</h2>
+      <form onSubmit={isLogin ? handleLogin : handleRegister}>
+        {!isLogin && (
+          <>
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Apellido"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Teléfono"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </>
+        )}
         <input
           type="email"
           placeholder="Correo Electrónico"
@@ -75,19 +113,26 @@ function Register({ onRegister }) {
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          type="text"
-          placeholder="Teléfono"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-        <input
           type="password"
           placeholder="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Registrar</button>
+        <button type="submit">{isLogin ? 'Iniciar sesión' : 'Registrar'}</button>
       </form>
+      <p>
+        {isLogin ? (
+          <span>
+            ¿No tienes cuenta?{' '}
+            <button onClick={() => setIsLogin(false)}>Regístrate</button>
+          </span>
+        ) : (
+          <span>
+            ¿Ya tienes cuenta?{' '}
+            <button onClick={() => setIsLogin(true)}>Inicia sesión</button>
+          </span>
+        )}
+      </p>
     </div>
   );
 }
@@ -153,16 +198,28 @@ function PaymentCards() {
 }
 
 function App() {
+  const [users, setUsers] = useState([]);
   const [role, setRole] = useState(null);
   const [user, setUser] = useState(null);
 
-  const handleLogin = (userRole) => {
-    setRole(userRole);
+  const handleSelectRole = (role) => {
+    setRole(role);
   };
 
   const handleRegister = (userData) => {
+    setUsers([...users, userData]);
     setUser(userData);
-    setRole('user');
+  };
+
+  const handleLogin = ({ email, password }) => {
+    const foundUser = users.find(
+      (user) => user.email === email && user.password === password
+    );
+    if (foundUser) {
+      setUser(foundUser);
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -175,16 +232,12 @@ function App() {
             <nav>
               <ul>
                 <li>
-                  <Link to="/login">Iniciar Sesión</Link>
-                </li>
-                <li>
-                  <Link to="/register">Registrar Usuario</Link>
+                  <Link to="/select-role">Seleccionar Rol</Link>
                 </li>
               </ul>
             </nav>
             <Routes>
-              <Route path="/login" element={<Login onLogin={handleLogin} />} />
-              <Route path="/register" element={<Register onRegister={handleRegister} />} />
+              <Route path="/select-role" element={<SelectRole onSelectRole={handleSelectRole} />} />
             </Routes>
           </div>
         ) : (
@@ -207,6 +260,7 @@ function App() {
               <Route path="/map" element={<MapPage />} />
               <Route path="/payment" element={<PaymentCards />} />
               <Route path="/nearby" element={<NearbyChargers />} />
+              <Route path="/auth" element={<Auth onRegister={handleRegister} onLogin={handleLogin} role={role} />} />
             </Routes>
           </div>
         )}
