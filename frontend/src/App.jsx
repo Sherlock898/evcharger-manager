@@ -29,6 +29,69 @@ function Login({ onLogin }) {
   );
 }
 
+function Register({ onRegister }) {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      roles: ['ROLE_USER'],
+    };
+
+    console.log(userData);
+    onRegister(userData);
+  };
+
+  return (
+    <div>
+      <h2>Registrar Usuario</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Apellido"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
+        <input
+          type="email"
+          placeholder="Correo Electrónico"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Teléfono"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit">Registrar</button>
+      </form>
+    </div>
+  );
+}
+
 function MapPage() {
   const mapContainerStyle = {
     width: '100%',
@@ -43,7 +106,6 @@ function MapPage() {
   const markers = [
     { lat: 40.730610, lng: -73.935242 },
     { lat: 40.740610, lng: -73.925242 },
-    //TODO Agrega más cargadores aquí
   ];
 
   return (
@@ -92,9 +154,15 @@ function PaymentCards() {
 
 function App() {
   const [role, setRole] = useState(null);
+  const [user, setUser] = useState(null);
 
   const handleLogin = (userRole) => {
     setRole(userRole);
+  };
+
+  const handleRegister = (userData) => {
+    setUser(userData);
+    setRole('user');
   };
 
   return (
@@ -102,7 +170,23 @@ function App() {
       <div className="App">
         <h1>EV Charger Manager</h1>
         {!role ? (
-          <Login onLogin={handleLogin} />
+          <div>
+            <h2>Bienvenido</h2>
+            <nav>
+              <ul>
+                <li>
+                  <Link to="/login">Iniciar Sesión</Link>
+                </li>
+                <li>
+                  <Link to="/register">Registrar Usuario</Link>
+                </li>
+              </ul>
+            </nav>
+            <Routes>
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
+              <Route path="/register" element={<Register onRegister={handleRegister} />} />
+            </Routes>
+          </div>
         ) : (
           <div>
             <h2>Bienvenido {role === 'admin' ? 'Administrador' : 'Usuario Común'}</h2>
@@ -115,14 +199,14 @@ function App() {
                   <Link to="/payment">Registrar Tarjeta</Link>
                 </li>
                 <li>
-                  <Link to="/nearby">Cargadores Cercanos</Link> {}
+                  <Link to="/nearby">Cargadores Cercanos</Link>
                 </li>
               </ul>
             </nav>
             <Routes>
               <Route path="/map" element={<MapPage />} />
               <Route path="/payment" element={<PaymentCards />} />
-              <Route path="/nearby" element={<NearbyChargers />} /> {}
+              <Route path="/nearby" element={<NearbyChargers />} />
             </Routes>
           </div>
         )}

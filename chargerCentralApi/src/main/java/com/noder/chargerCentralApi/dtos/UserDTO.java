@@ -2,6 +2,7 @@ package com.noder.chargerCentralApi.dtos;
 
 
 import java.time.Instant;
+import java.util.List;
 
 public class UserDTO {
     private Long id;
@@ -9,6 +10,8 @@ public class UserDTO {
     private String lastName;
     private String email;
     private String phone;
+    private List<String> roles;
+    private List<String> privileges;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -40,6 +43,14 @@ public class UserDTO {
         this.updatedAt = updatedAt;
     }
 
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public void setPrivileges(List<String> privileges) {
+        this.privileges = privileges;
+    }
+
     public Long getId() {
         return id;
     }
@@ -58,6 +69,14 @@ public class UserDTO {
 
     public String getPhone() {
         return phone;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public List<String> getPrivileges() {
+        return privileges;
     }
 
     public Instant getCreatedAt() {
