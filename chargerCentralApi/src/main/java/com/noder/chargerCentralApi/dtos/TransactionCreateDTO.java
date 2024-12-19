@@ -9,7 +9,7 @@ public class TransactionCreateDTO {
     private Instant start_time;
     private String start_meter_value;
 
-    public void setConnectorId(Connector connector) {
+    public void setConnector(Connector connector) {
         this.connector = connector;
     }
 
