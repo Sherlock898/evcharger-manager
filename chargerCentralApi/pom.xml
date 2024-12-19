@@ -105,6 +105,13 @@
 			<version>0.12.6</version>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- Transbank -->
+		<dependency>
+    		<groupId>com.github.transbankdevelopers</groupId>
+			<artifactId>transbank-sdk-java</artifactId>
+			<version>3.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
