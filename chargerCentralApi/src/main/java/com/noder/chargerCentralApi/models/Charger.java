@@ -26,6 +26,7 @@ public class Charger {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
     private String location;
     @NotNull
     private Integer conector_count;

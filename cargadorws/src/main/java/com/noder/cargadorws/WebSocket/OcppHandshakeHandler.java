@@ -31,8 +31,10 @@ public class OcppHandshakeHandler implements HandshakeHandler{
             response.setStatusCode(HttpStatusCode.valueOf(400));
             return false;
         }
-        // TODO: Here must be a call to the main server to check if charger is registered and allowed to connect
+
+        //TODO: Here must be a call to the main server to check if charger is registered and allowed to connect
         boolean allowed = true; // Call to server to check
+
         if(!allowed){
             response.setStatusCode(HttpStatusCode.valueOf(403));
         }

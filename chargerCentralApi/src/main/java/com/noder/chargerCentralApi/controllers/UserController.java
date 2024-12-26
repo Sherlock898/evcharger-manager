@@ -14,6 +14,7 @@ import com.noder.chargerCentralApi.services.UserService;
 
 import jakarta.validation.Valid;
 
+// This class is pending, first we need to implement a way to identify the users.
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -21,17 +22,5 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    @PostMapping("/create")
-    public UserDTO createUser(@RequestBody @Valid UserCreationDTO userCreationDTO) {
-        UserEntity user = userService.saveUser(userCreationDTO);
-        return userService.toUserDTO(user);
-    }
-
-    @PostMapping("/validate-pin")
-    public String validatePin(@RequestParam String rawPin, @RequestParam String hashedPin) {
-        boolean isValid = userService.isPinValid(rawPin, hashedPin);
-        return isValid ? "Valid pin" : "Invalid pin";
     }
 }

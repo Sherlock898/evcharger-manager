@@ -27,7 +27,7 @@ public class PaymentTestController {
     @PostMapping("/pay")
     public ResponseEntity<String> pay() throws TransactionCreateException, IOException {
         WebpayPlus.Transaction tx = new WebpayPlus.Transaction(new WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST));
-        final WebpayPlusTransactionCreateResponse response = tx.create("1", "sessionId", 6, "https://goldenelectric.cl/");
+        final WebpayPlusTransactionCreateResponse response = tx.create("1", "sessionId", 1500, "https://goldenelectric.cl/");
         String responseUrl = response.getUrl();
         String responseToken = response.getToken();
         return ResponseEntity.ok("{\"url\": \"" + responseUrl + "\", \"token\": \"" + responseToken + "\"}");

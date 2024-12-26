@@ -203,6 +203,7 @@ public class OcppHandler extends TextWebSocketHandler {
 
 			case "StartTransaction":
 				StartTransactionReq startTransactionReq = gson.fromJson(payload, StartTransactionReq.class);
+				// TODO: Send request to central api with: chargerId, connectorId, meterstart, timestamp
 				Integer transactionId = chargerManager.startTransaction(chargerId, startTransactionReq.connectorId(), startTransactionReq.meterStart(), startTransactionReq.timestamp());
 				sendCallResult(session, uniqueId, new StartTransactionConf(new IdTagInfo(null, null, AuthorizationStatus.Accepted), transactionId));
 				break;

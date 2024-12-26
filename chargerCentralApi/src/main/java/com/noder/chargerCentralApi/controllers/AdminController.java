@@ -46,6 +46,7 @@ public class AdminController {
     // Register a new charger
     @PostMapping("/chargers")
     public ResponseEntity<Charger> registerCharger(Charger charger) {
+        // TODO: Set id
         UserEntity user = userService.getUserFromAuthentication().orElse(null);
         if (user == null) return ResponseEntity.badRequest().build();
         charger.setAdministrator(user);
