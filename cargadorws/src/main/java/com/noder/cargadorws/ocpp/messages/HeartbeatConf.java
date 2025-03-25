@@ -1,4 +1,4 @@
 package com.noder.cargadorws.ocpp.messages;
-import java.util.Date;
+import java.time.Instant;
 
-public record HeartbeatConf(Date currentTime) {}
+public record HeartbeatConf(Instant currentTime) {}

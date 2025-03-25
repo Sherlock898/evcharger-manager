@@ -1,8 +1,8 @@
 package com.noder.cargadorws.ocpp.messages;
 
 
-public record ChangeAvailabilityReq(Integer connectorId, Type type) {
-    public enum Type {
+public record ChangeAvailabilityReq(Integer connectorId, AvailabilityType type) {
+    public enum AvailabilityType {
         Inoperative,
         Operative
     }
