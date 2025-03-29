@@ -1,13 +1,12 @@
-package com.noder.ocppserver;
+package com.noder.restapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class OcppServerApplication {
+public class RestApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(OcppServerApplication.class, args);
+		SpringApplication.run(RestApiApplication.class, args);
 	}
-
 }
