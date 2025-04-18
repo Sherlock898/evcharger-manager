@@ -29,7 +29,7 @@ public class Charger {
     @NotNull
     private String location;
     @NotNull
-    private Integer conector_count;
+    private Integer connector_count;
     @NotNull
     private String uri;
     @NotNull
@@ -43,6 +43,10 @@ public class Charger {
     @ManyToOne
     @JoinColumn(name = "administrator_id", nullable = false)
     private UserEntity administrator;
+
+    @ManyToOne
+    @JoinColumn(name = "charging_station_id", nullable = false)
+    private ChargingStation chargingStation;
 
     @ManyToOne
     @JoinColumn(name = "web_socket_server_id", nullable = false)
@@ -77,12 +81,12 @@ public class Charger {
         this.location = location;
     }
 
-    public Integer getConector_count() {
-        return conector_count;
+    public Integer getConnector_count() {
+        return connector_count;
     }
 
-    public void setConector_count(Integer conector_count) {
-        this.conector_count = conector_count;
+    public void setConector_count(Integer connector_count) {
+        this.connector_count = connector_count;
     }
 
     public String getUri() {

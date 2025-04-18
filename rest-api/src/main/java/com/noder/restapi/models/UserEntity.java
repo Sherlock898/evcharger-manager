@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -50,12 +51,12 @@ public class UserEntity {
         inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")) 
     private List<Role> roles;
 
+    @ManyToOne
+    @JoinColumn(name = "charging_station_id", nullable = false)
+    private ChargingStation chargingStation;
+
     @OneToMany(mappedBy = "chargingClient")
     private List<Card> cards;
-
-    @OneToMany(mappedBy = "administrator")
-    private List<Charger> chargers;
-
 
     // TODO: this should be a separate entity (?)
     private String chargerArea;
@@ -136,14 +137,6 @@ public class UserEntity {
 
     public void setCards(List<Card> cards) {
         this.cards = cards;
-    }
-
-    public List<Charger> getChargers() {
-        return chargers;
-    }
-
-    public void setChargers(List<Charger> chargers) {
-        this.chargers = chargers;
     }
 
     public String getChargerArea() {

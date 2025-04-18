@@ -12,7 +12,6 @@ import com.noder.restapi.models.UserEntity;
 import com.noder.restapi.repositories.PrivilegeRepository;
 import com.noder.restapi.repositories.RoleRepostiory;
 import com.noder.restapi.repositories.UserRepository;
-import com.noder.restapi.services.EncryptionService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -68,7 +67,7 @@ public class DataLoader {
         List<Privilege> systemAdminPrivileges = List.of(readAllTransactions, readAllChargers, createAllAccounts, deleteAllAccounts, updateAllAccounts, readAllAccounts);
     
         createRoleIfNotFound("ROLE_USER", userPrivileges);
-        createRoleIfNotFound("ROLE_SUB_ADMIN", subAdminPrivileges);
+        // createRoleIfNotFound("ROLE_SUB_ADMIN", subAdminPrivileges);
         createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
 
         Role roleSysAdmin = createRoleIfNotFound("ROLE_SYS_ADMIN", systemAdminPrivileges);

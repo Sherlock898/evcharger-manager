@@ -10,5 +10,4 @@ import com.noder.restapi.models.Charger;
 @Repository
 public interface ChargerRepository extends JpaRepository<Charger, Long> {
     List<Charger> findByAdministrator_id(Long userId);
-    
 }
